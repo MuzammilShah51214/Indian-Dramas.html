@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian FM Online Music</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #0f0f0f, #2a2a2a);
+            animation: bg-pulse 20s infinite alternate;
+            padding: 20px;
+        }
+
+        @keyframes bg-pulse {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        .audio-player {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 40px rgba(78, 205, 196, 0.2);
+            width: 95%;
+            max-width: 500px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .player-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .player-header h2 {
+            background: linear-gradient(45deg, #00ff87, #60efff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            filter: drop-shadow(0 0 10px rgba(96, 239, 255, 0.4));
+        }
+
+        .visualizer {
+            height: 100px;
+            width: 100%;
+            margin: 1.5rem 0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            /* New border animation styles */
+            padding: 3px;
+            background: linear-gradient(45deg, 
+                 #030202);
+            background-size: 300% 300%;
+            animation: border-pulse 4s ease infinite;
+            box-shadow: 0 0 20px rgba(96, 239, 255, 0.3);
+        }
+
+        @keyframes border-pulse {
+            0% { 
+                background-position: 0% 50%; 
+                box-shadow: 0 0 20px rgba(96, 239, 255, 0.3);
+            }
+            50% { 
+                background-position: 100% 50%; 
+                box-shadow: 0 0 30px rgba(96, 239, 255, 0.6);
+            }
+            100% { 
+                background-position: 0% 50%; 
+                box-shadow: 0 0 20px rgba(96, 239, 255, 0.3);
+            }
+        }
+
+        .visualizer-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+.radio-wave-gif {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.9;
+            mix-blend-mode: screen;
+            border-radius: 12px;
+        }
+        
+
+        .wave {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #101713 0%, #101713 100%);
+            opacity: 0.3;
+            clip-path: polygon(0% 50%, 100% 50%, 100% 100%, 0% 100%);
+            animation: wave-anim 2s infinite linear;
+        }
+
+        @keyframes wave-anim {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .timeline-container {
+            position: relative;
+            margin: 1.5rem 0;
+        }
+
+        .timeline {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00ff87, #60efff);
+            border-radius: 2px;
+            position: relative;
+            transition: width 0.1s linear;
+        }
+
+        .progress::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #00ff87;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #00ff87;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: #60efff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .control-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: #00ff87;
+            transition: width 0.3s ease;
+        }
+
+        .control-btn:hover {
+            color: #00ff87;
+            transform: scale(1.1);
+        }
+
+        .control-btn:hover::after {
+            width: 100%;
+        }
+
+        .play-btn {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #00ff87, #60efff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            padding: 15px;
+            border-radius: 50%;
+            border: 2px solid rgba(96, 239, 255, 0.3);
+        }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+
+        .volume-slider {
+            width: 120px;
+            height: 4px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #00ff87;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00ff87;
+        }
+
+        .playlist {
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+        }
+
+        .playlist-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .playlist-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(10px);
+        }
+
+        .playlist-item.active {
+            background: linear-gradient(90deg, rgba(0, 255, 135, 0.1), transparent);
+            border-left: 3px solid #00ff87;
+        }
+
+        /* Animated name styles */
+        .animated-name-container {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 30px rgba(78, 205, 196, 0.1);
+        }
+
+        .animated-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, 
+                #ff0000, #ff7f00, #ffff00, #00ff00, 
+                #0000ff, #4b0082, #9400d3, #e1ac38, #bc0f5e);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: rainbow 8s ease infinite, pulse 2s ease infinite;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @media (max-width: 768px) {
+            .animated-name {
+                font-size: 1.2rem;
+            }
+            .player-header h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="audio-player">
+        <div class="player-header">
+            <h2>Indian FM Online Music</h2>
+        </div>
+
+        <div class="visualizer">
+            <div class="visualizer-inner">
+                <img src="https://i.pinimg.com/originals/19/34/af/1934afbf267c2334a1e7f7509d212f62.gif" class="radio-wave-gif" alt="Radio waves">
+                <div class="wave"></div>
+            </div>
+        </div>
+
+        <div class="timeline-container">
+            <div class="timeline">
+                <div class="progress"></div>
+            </div>
+            <div class="time-display">
+                <span class="current-time">0:00</span>
+                <span class="duration">0:00</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn"><i class="fas fa-random"></i></button>
+            <button class="control-btn"><i class="fas fa-step-backward"></i></button>
+            <button class="control-btn play-btn"><i class="fas fa-play"></i></button>
+            <button class="control-btn"><i class="fas fa-step-forward"></i></button>
+            <button class="control-btn"><i class="fas fa-redo"></i></button>
+        </div>
+
+        <div class="volume-container">
+            <i class="fas fa-volume-up" style="color: #60efff;"></i>
+            <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="1">
+        </div>
+
+        <div class="playlist">
+            <div class="playlist-item active" data-src="https://drive.uber.radio/uber/bollywoodlove/icecast.audio">
+                <i class="fas fa-music" style="margin-right: 10px; color: #00ff87;"></i>
+                Ishq FM
+            </div>
+            <div class="playlist-item" data-src="https://stream.zeno.fm/zu59ykebs2zuv.mp3">
+                <i class="fas fa-music" style="margin-right: 10px; color: #60efff;"></i>
+                Bolly FM
+            </div>
+            <div class="playlist-item" data-src="https://drive.uber.radio/uber/bollywoodaruitsingh/icecast.audio">
+                <i class="fas fa-music" style="margin-right: 10px; color: #60efff;"></i>
+                Arijit Singh 
+            </div>
+            <div class="playlist-item" data-src="https://drive.uber.radio/uber/bollywoodmix/icecast.audio">
+                <i class="fas fa-music" style="margin-right: 10px; color: #60efff;"></i>
+                Bollywood Mix
+            </div>
+            
+            
+       
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </div>
+    </div>
+    
+    <!-- Animated name container -->
+    <div class="animated-name-container">
+        <div class="animated-name">❤️ 𝑺𝒚𝒆𝒅 𝑴𝒖𝒛𝒂𝒎𝒎𝒊𝒍 𝑺𝒉𝒂𝒉 ❤️</div>
+    </div>
+
+    <script>
+        const audio = new Audio('https://drive.uber.radio/uber/bollywoodaruitsingh/icecast.audio');
+        const playBtn = document.querySelector('.play-btn');
+        const progress = document.querySelector('.progress');
+        const timeline = document.querySelector('.timeline');
+        const volumeSlider = document.querySelector('.volume-slider');
+        const currentTime = document.querySelector('.current-time');
+        const duration = document.querySelector('.duration');
+        const playlistItems = document.querySelectorAll('.playlist-item');
+        const wave = document.querySelector('.wave');
+        const radioWaveGif = document.querySelector('.radio-wave-gif');
+        const visualizer = document.querySelector('.visualizer');
+
+        let isPlaying = false;
+        let isDragging = false;
+
+        // Initialize with first song playing
+        
+        audio.play();
+        isPlaying = true;
+        
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        playBtn.style.background = 'linear-gradient(45deg, #ff0000, #ff6b6b)';
+        animateWave();
+
+        // Play/Pause functionality
+        playBtn.addEventListener('click', togglePlay);
+        
+        function togglePlay() {
+            if (isPlaying) {
+                audio.pause();
+                radioWaveGif.style.display = 'none';
+                visualizer.style.animationPlayState = 'paused';
+            } else {
+                audio.play();
+                radioWaveGif.style.display = 'block';
+                visualizer.style.animationPlayState = 'running';
+                animateWave();
+            }
+            isPlaying = !isPlaying;
+            playBtn.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+            playBtn.style.background = isPlaying 
+                ? 'linear-gradient(45deg, #ff0000, #ff6b6b)'
+                : 'linear-gradient(45deg, #00ff87, #60efff)';
+        }
+
+        // Timeline interaction
+        timeline.addEventListener('click', seek);
+        timeline.addEventListener('mousedown', () => isDragging = true);
+        document.addEventListener('mouseup', () => isDragging = false);
+        document.addEventListener('mousemove', (e) => isDragging && seek(e));
+
+        function seek(e) {
+            const rect = timeline.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = pos * audio.duration;
+        }
+
+        // Audio updates
+        audio.addEventListener('timeupdate', updateProgress);
+        audio.addEventListener('loadedmetadata', () => {
+            duration.textContent = formatTime(audio.duration);
+        });
+        audio.addEventListener('ended', nextTrack);
+
+        // Volume control
+        volumeSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value;
+        });
+
+        // Playlist functionality
+        playlistItems.forEach(item => {
+            item.addEventListener('click', () => {
+                playlistItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                audio.src = item.dataset.src;
+                audio.play();
+                isPlaying = true;
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                playBtn.style.background = 'linear-gradient(45deg, #ff0000, #ff6b6b)';
+                radioWaveGif.style.display = 'block';
+                visualizer.style.animationPlayState = 'running';
+            });
+        });
+
+        // Visualizer animation
+        function animateWave() {
+            wave.style.animation = 'wave-anim 2s infinite linear';
+            audio.addEventListener('pause', () => {
+                wave.style.animation = 'none';
+            });
+        }
+
+        // Time formatting
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateProgress() {
+            const progressPercent = (audio.currentTime / audio.duration) * 100;
+            progress.style.width = `${progressPercent}%`;
+            currentTime.textContent = formatTime(audio.currentTime);
+        }
+
+        // Track control functions
+        function nextTrack() {
+            // Find current active item
+            const currentIndex = Array.from(playlistItems).findIndex(item => 
+                item.classList.contains('active')
+            );
+            
+            // Calculate next index
+            const nextIndex = (currentIndex + 1) % playlistItems.length;
+            
+            // Activate next track
+            playlistItems.forEach(item => item.classList.remove('active'));
+            playlistItems[nextIndex].classList.add('active');
+            
+            // Change audio source and play
+            audio.src = playlistItems[nextIndex].dataset.src;
+            audio.play();
+        }
+    </script>
+</body>
+</html>
