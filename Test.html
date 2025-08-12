@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>❤️𝓢𝔂𝓮𝓭 𝓜𝓾𝔃𝓪𝓶𝓶𝓲𝓵 𝓢𝓱𝓪𝓱 ❤️</title>
+    <!-- Clappr Player -->
+    <script type='text/javascript' src="https://cdn.jsdelivr.net/npm/@clappr/player@latest/dist/clappr.min.js"></script>
+    <!-- JW Player -->
+    <script src="https://ssl.p.jwpcdn.com/player/v/8.26.0/jwplayer.js"></script>
+    <script>jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";</script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Common Styles */
+        body {
+            margin: 0;
+            background-color: #000000;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: #aaa;
+            padding-top: 280px;
+            padding-bottom: 30px;
+        }
+
+        /* Clappr Player Styles */
+        #clappr-player-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 210px;
+            background: #000;
+            z-index: 1000;
+        }
+
+        /* JW Player Styles */
+        #jwplayer-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 210px;
+            background: #000;
+            z-index: 1000;
+            display: none;
+        }
+
+        #jwplayer-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: #E113D3;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 0 10px #E113D3;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #jwplayer-close:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px #E113D3;
+        }
+
+        /* Media Controls */
+        .media-controls {
+            position: fixed;
+            top: 210px;
+            left: 0;
+            width: 100%;
+            background: #111;
+            padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .control-btn {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .volume-slider {
+            width: 80px;
+        }
+
+        /* Channel Filters */
+        .channel-filters {
+            position: fixed;
+            top: 260px;
+            left: -10;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            border-bottom: 1px solid #333;
+        }
+
+        .filter-btn {
+            padding: 6px 15px;
+            border-radius: 20px;
+            border: none;
+            background: #222;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-size: 11px;
+        }
+
+        .filter-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                #ff0000, #ff7300, #fffb00, #48ff00,
+                #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000
+            );
+            background-size: 400% 400%;
+            opacity: 0;
+            transition: 0.5s;
+            z-index: 1;
+        }
+
+        .filter-btn:hover::before {
+            opacity: 0.5;
+        }
+
+        .filter-btn.active {
+            background: #E113D3;
+            color: white;
+            box-shadow: 0 0 10px #E113D3, 0 0 20px #E113D3;
+        }
+
+        .filter-btn span {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Channel Buttons */
+        .channel-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            margin-top: 60px;
+        }
+
+        .channel-button {
+            position: relative;
+            border-radius: 10%;
+            border: none;
+            padding: 2px;
+            height: 130px;
+            width: 96px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+
+        .channel-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                #ff0000, #ff7300, #fffb00, #48ff00,
+                #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000
+            );
+            background-size: 400% 400%;
+            opacity: 0;
+            transition: 0.5s;
+            animation: animateGlow 20s linear infinite;
+            z-index: 1;
+        }
+
+        .channel-button:hover::before {
+            opacity: 1;
+        }
+
+        .channel-button::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: 8%;
+            background: #333;
+            z-index: 2;
+        }
+
+        .channel-button img {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 3;
+            transition: transform 0.3s ease;
+        }
+
+        .channel-button:hover img {
+            transform: scale(1.05);
+        }
+
+        /* JWPlayer Channel Buttons */
+        .jw-channel-button {
+            position: relative;
+            border-radius: 10%;
+            border: none;
+            padding: 2px;
+            height: 130px;
+            width: 96px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+
+        .jw-channel-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                #00ffd5, #002bff, #7a00ff, #ff00c8,
+                #ff0000, #ff7300, #fffb00, #48ff00
+            );
+            background-size: 400% 400%;
+            opacity: 0;
+            transition: 0.5s;
+            animation: animateGlow 20s linear infinite;
+            z-index: 1;
+        }
+
+        .jw-channel-button:hover::before {
+            opacity: 1;
+        }
+
+        .jw-channel-button::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: 8%;
+            background: #333;
+            z-index: 2;
+        }
+
+        .jw-channel-button img {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 3;
+            transition: transform 0.3s ease;
+        }
+
+        .jw-channel-button:hover img {
+            transform: scale(1.05);
+        }
+
+        /* Animations */
+        @keyframes animateGlow {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 400% 50%;
+            }
+        }
+
+        .playing {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+            }
+        }
+        
+        .channel-button, .jw-channel-button {
+            display: none;
+        }
+        
+        .show-channel {
+            display: block;
+        }
+
+        /* Copyright */
+        .copyright {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Clappr Player Container -->
+    <div id="clappr-player-container"></div>
+    
+    <!-- JW Player Container -->
+    <div id="jwplayer-container">
+        <button id="jwplayer-close">×</button>
+        <div id="jwplayer"></div>
+    </div>
+    
+    <!-- Media Controls -->
+    <div class="media-controls">
+        <button class="control-btn" id="play-pause-btn"><i class="fas fa-play"></i></button>
+        <button class="control-btn" id="stop-btn"><i class="fas fa-stop"></i></button>
+        <div class="volume-control">
+            <button class="control-btn" id="mute-btn"><i class="fas fa-volume-up"></i></button>
+            <input type="range" class="volume-slider" id="volume-slider" min="0" max="1" step="0.1" value="1">
+        </div>
+        <button class="control-btn" id="fullscreen-btn"><i class="fas fa-expand"></i></button>
+    </div>
+    
+    <!-- Channel Filters -->
+    <div class="channel-filters">
+        <button class="filter-btn active" data-filter="all"><span>All</span></button>
+        <button class="filter-btn" data-filter="news"><span>News</span></button>
+        <button class="filter-btn" data-filter="entertainment"><span>Entertainment</span></button>
+        <button class="filter-btn" data-filter="movies"><span>Movies</span></button>
+        <button class="filter-btn" data-filter="music"><span>Music</span></button>
+        <button class="filter-btn" data-filter="kids"><span>Kids</span></button>
+        <button class="filter-btn" data-filter="sports"><span>Sports</span></button>
+        <button class="filter-btn" data-filter="islamic"><span>Islamic</span></button> 
+        <button class="filter-btn" data-filter="regional"><span>Regional</span></button>   
+    </div>
+
+    <!-- Channel Buttons -->
+    <div class="channel-buttons">
+        <!-- Clappr Channels -->
+        <div onclick="changeClapprChannel('https://cdn4.mjunoon.tv:8087/streamtest/83M/chunks.m3u8', this)" 
+           class="channel-button show-channel" 
+           data-category="news">
+            <img src="https://canvas.tamashaweb.com/jazzlive/uploads/channels/1707716722.webp?id=87"/>
+        </div>
+        
+        
+
+        <div onclick="changeClapprChannel('https://cdn4.mjunoon.tv:8087/streamtest/85M/chunks.m3u8', this)" 
+           class="channel-button show-channel" 
+           data-category="entertainment">
+            <img src="https://canvas.tamashaweb.com/jazzlive/uploads/channels/logo/ary-zindagi-live-logo.webp?id=25"/>
+        </div>
+
+        <!-- JWPlayer Channels -->
+        <div onclick="changeJWChannel('https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeetv/default/manifest.mpd', 
+                                     'https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/yHNSuG1V.png', 
+                                     'Zee TV', 
+                                     'ed068cf84f0640ccbc7c0e395c0a272e', 
+                                     'bb722190f2bb446391020411a7d0828b', 
+                                     null, this)" 
+           class="jw-channel-button show-channel" 
+           data-category="entertainment">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/yHNSuG1V.png"/>
+        </div>
+        
+        <div onclick="changeJWChannel('https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeeanmol/default/manifest.mpd',
+                                     'https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/QjKdER9Z.png',
+                                     'Zee Anmool',
+                                     '4023613457774cbeb71a62c339970e63',
+                                     '1c3e9fce5f014542be9cd1f749181204',
+                                     null, this)" 
+           class="jw-channel-button show-channel" 
+           data-category="entertainment">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/QjKdER9Z.png"/>
+        </div>
+    </div>
+
+    <div class="copyright">
+        <span>Copyright 2025. All Right Reserved By: ~Syed Muzammil Shah~</span>
+    </div>
+
+    <script>
+        // Initialize Clappr player
+        var clapprPlayer = new Clappr.Player({
+            source: "https://cdn4.mjunoon.tv:8087/streamtest/83M/chunks.m3u8",
+            poster: "https://i.ibb.co/3NgJ4zh/Poster.jpg",
+            parentId: "#clappr-player-container",
+            width: '100%',
+            height: '100%',
+            autoPlay: true,
+            mute: false,
+            mediacontrol: {seekbar: "#E113D3", buttons: "#66B2FF"},
+            plugins: [Clappr.FlasHLS],
+            events: {
+                onReady: function() {
+                    setupFullscreenHandler();
+                }
+            }
+        });
+
+        // Initialize JW Player
+        var jwPlayerInstance = jwplayer("jwplayer").setup({
+            playlist: [],
+            width: '100%',
+            height: '100%',
+            autostart: false,
+            mute: false,
+            primary: "html5",
+            hlshtml: true,
+            stretching: "uniform"
+        });
+
+        // Track currently playing channel
+        let currentPlayingButton = null;
+        let isPlaying = true;
+        let isFullscreen = false;
+        
+        // Change Clappr channel
+        function changeClapprChannel(sourceUrl, button) {
+            // Hide JW Player and show Clappr Player
+            document.getElementById('jwplayer-container').style.display = 'none';
+            document.getElementById('clappr-player-container').style.display = 'block';
+            
+            // Load and play the new channel
+            clapprPlayer.load(sourceUrl);
+            clapprPlayer.play();
+            isPlaying = true;
+            document.getElementById('play-pause-btn').innerHTML = '<i class="fas fa-pause"></i>';
+            
+            // Update active button styling
+            if (currentPlayingButton) {
+                currentPlayingButton.classList.remove('playing');
+            }
+            
+            button.classList.add('playing');
+            currentPlayingButton = button;
+        }
+        
+        // Change JWPlayer channel
+        function changeJWChannel(streamUrl, imageUrl, channelName, keyId, key, headers, button) {
+            // Hide Clappr Player and show JW Player
+            document.getElementById('clappr-player-container').style.display = 'none';
+            document.getElementById('jwplayer-container').style.display = 'block';
+            
+            // Create playlist item
+            const playlistItem = {
+                file: streamUrl,
+                image: imageUrl
+            };
+
+            // Add DRM if available
+            if (keyId && key) {
+                playlistItem.drm = {
+                    clearkey: {
+                        keyId: keyId,
+                        key: key
+                    }
+                };
+            }
+
+            // Add headers if available
+            if (headers) {
+                try {
+                    playlistItem.headers = JSON.parse(headers);
+                } catch (e) {
+                    console.warn('Failed to parse headers', e);
+                }
+            }
+
+            // Load and play the channel
+            jwPlayerInstance.load([playlistItem]);
+            jwPlayerInstance.setMute(false);
+            jwPlayerInstance.play();
+            
+            // Update active button styling
+            if (currentPlayingButton) {
+                currentPlayingButton.classList.remove('playing');
+            }
+            
+            button.classList.add('playing');
+            currentPlayingButton = button;
+            
+            // Update play/pause button state
+            isPlaying = true;
+            document.getElementById('play-pause-btn').innerHTML = '<i class="fas fa-pause"></i>';
+        }
+        
+        // Setup fullscreen handler
+        function setupFullscreenHandler() {
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            
+            // Listen for fullscreen change events
+            document.addEventListener('fullscreenchange', updateFullscreenButton);
+            document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+            document.addEventListener('mozfullscreenchange', updateFullscreenButton);
+            document.addEventListener('MSFullscreenChange', updateFullscreenButton);
+            
+            // Fullscreen button click handler
+            fullscreenBtn.addEventListener('click', function() {
+                if (!isFullscreen) {
+                    enterFullscreen();
+                } else {
+                    exitFullscreen();
+                }
+            });
+        }
+        
+        function enterFullscreen() {
+            const elem = document.getElementById('clappr-player-container').style.display === 'block' ? 
+                document.getElementById('clappr-player-container') : 
+                document.getElementById('jwplayer-container');
+            
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
+        
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+        
+        function updateFullscreenButton() {
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            isFullscreen = !!(document.fullscreenElement || 
+                             document.webkitFullscreenElement || 
+                             document.mozFullScreenElement || 
+                             document.msFullscreenElement);
+            
+            if (isFullscreen) {
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+        
+        // Media control functions
+        document.getElementById('play-pause-btn').addEventListener('click', function() {
+            if (document.getElementById('clappr-player-container').style.display === 'block') {
+                // Control Clappr player
+                if (isPlaying) {
+                    clapprPlayer.pause();
+                    this.innerHTML = '<i class="fas fa-play"></i>';
+                    isPlaying = false;
+                } else {
+                    clapprPlayer.play();
+                    this.innerHTML = '<i class="fas fa-pause"></i>';
+                    isPlaying = true;
+                }
+            } else {
+                // Control JWPlayer
+                if (isPlaying) {
+                    jwPlayerInstance.pause();
+                    this.innerHTML = '<i class="fas fa-play"></i>';
+                    isPlaying = false;
+                } else {
+                    jwPlayerInstance.play();
+                    this.innerHTML = '<i class="fas fa-pause"></i>';
+                    isPlaying = true;
+                }
+            }
+        });
+        
+        document.getElementById('stop-btn').addEventListener('click', function() {
+            if (document.getElementById('clappr-player-container').style.display === 'block') {
+                clapprPlayer.stop();
+            } else {
+                jwPlayerInstance.stop();
+            }
+            document.getElementById('play-pause-btn').innerHTML = '<i class="fas fa-play"></i>';
+            isPlaying = false;
+        });
+        
+        document.getElementById('mute-btn').addEventListener('click', function() {
+            if (document.getElementById('clappr-player-container').style.display === 'block') {
+                if (clapprPlayer.isMuted()) {
+                    clapprPlayer.unmute();
+                    this.innerHTML = '<i class="fas fa-volume-up"></i>';
+                } else {
+                    clapprPlayer.mute();
+                    this.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                }
+            } else {
+                if (jwPlayerInstance.getMute()) {
+                    jwPlayerInstance.setMute(false);
+                    this.innerHTML = '<i class="fas fa-volume-up"></i>';
+                } else {
+                    jwPlayerInstance.setMute(true);
+                    this.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                }
+            }
+        });
+        
+        document.getElementById('volume-slider').addEventListener('input', function() {
+            const volume = parseFloat(this.value);
+            if (document.getElementById('clappr-player-container').style.display === 'block') {
+                clapprPlayer.setVolume(volume);
+            } else {
+                jwPlayerInstance.setVolume(volume * 100);
+            }
+            
+            if (this.value == 0) {
+                document.getElementById('mute-btn').innerHTML = '<i class="fas fa-volume-mute"></i>';
+            } else {
+                document.getElementById('mute-btn').innerHTML = '<i class="fas fa-volume-up"></i>';
+            }
+        });
+        
+        // JWPlayer close button
+        document.getElementById('jwplayer-close').addEventListener('click', function() {
+            document.getElementById('jwplayer-container').style.display = 'none';
+            document.getElementById('clappr-player-container').style.display = 'block';
+            jwPlayerInstance.pause();
+            
+            if (currentPlayingButton) {
+                currentPlayingButton.classList.remove('playing');
+            }
+        });
+        
+        // Channel filter functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                const channels = document.querySelectorAll('.channel-button, .jw-channel-button');
+                
+                channels.forEach(channel => {
+                    channel.classList.remove('show-channel');
+                    if (filter === 'all' || channel.getAttribute('data-category') === filter) {
+                        channel.classList.add('show-channel');
+                    }
+                });
+            });
+        });
+        
+        // Initialize volume for JWPlayer
+        jwPlayerInstance.on('ready', function() {
+            document.getElementById('volume-slider').value = jwPlayerInstance.getVolume() / 100;
+        });
+    </script>
+</body>
+</html>
