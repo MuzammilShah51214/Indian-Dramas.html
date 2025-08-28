@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Position Animated Iframe with Loader</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+        }
+        
+        /* Container to center the iframe horizontally */
+        .iframe-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 10px 0;
+            background-color: #000;
+            z-index: 100;
+        }
+        
+        /* Iframe styling with animation */
+        #animated-iframe { 
+            width: 352px;
+            height: 280px;
+            border: 4px solid;
+            animation: borderAnimation 3s linear infinite;
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Color animation keyframes */
+        @keyframes borderAnimation {
+            0% {
+                border-color: #ff0000;
+                box-shadow: 0 0 15px rgba(255,0,0,0.7);
+            }
+            25% {
+                border-color: #ffff00;
+                box-shadow: 0 0 15px rgba(255,255,0,0.7);
+            }
+            50% {
+                border-color: #00ff00;
+                box-shadow: 0 0 15px rgba(0,255,0,0.7);
+            }
+            75% {
+                border-color: #00ffff;
+                box-shadow: 0 0 15px rgba(0,255,255,0.7);
+            }
+            100% {
+                border-color: #ff00ff;
+                box-shadow: 0 0 15px rgba(255,0,255,0.7);
+            }
+        }
+        
+        /* Loader styling */
+        .loader-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 99;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-top: 5px solid #ff0000;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        .loader-text {
+            color: white;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Content spacer to prevent overlap */
+        .content-spacer {
+            height: 250px;
+        }
+        
+        /* Optional content below */
+        .content-below {
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 240px;
+        }
+        
+        /* Hide loader when iframe is loaded */
+        .iframe-loaded .loader-container {
+            display: none;
+        }
+        
+        .iframe-loaded #animated-iframe {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Container to position iframe at top -->
+    <div class="iframe-container">
+        <!-- Loader element -->
+        <div class="loader-container">
+            <div class="loader"></div>
+            <div class="loader-text">Loading content...</div>
+        </div>
+        
+        <iframe 
+            src="https://allinonereborn.fun/airteltv-web/player.html?url=https://allinonereborn.fun/airteltv-web/live.php?id=276912"
+            allowfullscreen 
+            frameborder="0" 
+            id="animated-iframe" 
+            name="embeddedFrame" 
+            scrolling="no"
+            style="background-color:#000"
+            onload="iframeLoaded()">
+        </iframe>
+    </div>
+    
+    <script>
+        function iframeLoaded() {
+            document.querySelector('.iframe-container').classList.add('iframe-loaded');
+        }
+        
+        // Fallback in case iframe doesn't load properly
+        setTimeout(function() {
+            if (!document.querySelector('.iframe-container').classList.contains('iframe-loaded')) {
+                document.querySelector('.loader-text').textContent = "Taking longer than expected...";
+            }
+        }, 10000);
+    </script>
+</body>
+</html>
