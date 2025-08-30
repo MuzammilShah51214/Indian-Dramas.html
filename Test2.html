@@ -1,261 +1,628 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultra Modern Video Player</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>IndianTV-Live</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    
+    <!-- JW Player -->
+    <script src="https://ssl.p.jwpcdn.com/player/v/8.26.0/jwplayer.js"></script>
+    <script>jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";</script>
+    
     <style>
         :root {
-            --primary-color: #ff5500;
-            --primary-hover: #ff8533;
-            --bg-dark: #121212;
-            --bg-darker: #0a0a0a;
-            --bg-light: #1e1e1e;
-            --text-primary: #ffffff;
-            --text-secondary: #aaaaaa;
-            --control-height: 60px;
-            --progress-height: 4px;
-            --transition-speed: 0.3s;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --neon-pink: #ff2a6d;
+            --neon-blue: #05d9e8;
+            --neon-purple: #d300c5;
+            --neon-green: #00ff9d;
+            --neon-yellow: #f9f002;
+            --primary-color: #0066cc;
+            --secondary-color: #004d99;
+            --text-color: #ffffff;
+            --bg-color: #121212;
+            --control-bg: rgba(0, 0, 0, 0.7);
+            --hover-color: #1a8cff;
         }
         
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #111;
+            color: #fff;
             overflow-x: hidden;
         }
         
-        .player-container {
+        /* Player Selection Buttons */
+        #player-selection {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 15px;
+            margin-top: 10px;
+            background: rgba(0,0,0,0.7);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            backdrop-filter: blur(5px);
+        }
+        
+        .player-select-btn {
+            padding: 8px 20px;
+            border-radius: 25px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: #222;
+            color: white;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .player-select-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .player-select-btn.active {
+            background: var(--neon-pink);
+            color: white;
+            box-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
+            animation: neon-pulse 1.5s infinite alternate;
+        }
+        
+        .player-select-btn img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+        
+        /* IFrame Player Container */
+        #iframe-player-container {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 56.25vw;
-            max-height: 100vh;
-            background-color: var(--bg-darker);
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            margin: 0;
             z-index: 1000;
-            transition: all var(--transition-speed) ease;
+            background: #000;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+            display: none;
+        }
+        
+        #iframe-player-container.visible {
+            display: block;
+        }
+        
+        #iframe-player-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: var(--neon-pink);
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 0 10px var(--neon-pink);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #iframe-player-close:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--neon-pink);
+        }
+        
+        .iframe-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        }
+        
+        #iframe-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 250px;
+            background: #000;
+            border: none;
+        }
+        
+        /* JW Player Container */
+        #player-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            margin: 0;
+            z-index: 1000;
+            background: #000;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+            transition: opacity 0.3s ease;
+            display: none;
+        }
+        
+        #player-container.visible {
+            display: block;
+        }
+        
+        #player-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: var(--neon-pink);
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 0 10px var(--neon-pink);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #player-close:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--neon-pink);
+        }
+        
+        #player {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%;
+        }
+        
+        /* HTML5 Video Player Container */
+        #html5-player-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            margin: 0;
+            z-index: 1000;
+            background: #000;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+            display: none;
+        }
+        
+        #html5-player-container.visible {
+            display: block;
+        }
+        
+        #html5-player-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: var(--neon-pink);
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 0 10px var(--neon-pink);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #html5-player-close:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--neon-pink);
         }
         
         .video-container {
             position: relative;
             width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #000;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
         }
         
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        .controls-overlay {
+        #html5-video-player {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
-            opacity: 0;
-            transition: opacity var(--transition-speed) ease;
-            z-index: 1001;
-        }
-
-        .player-container:hover .controls-overlay,
-        .player-container:focus-within .controls-overlay,
-        .controls-overlay.visible {
-            opacity: 1;
+            background: #000;
+            object-fit: contain;
         }
         
-        .controls {
+        /* Common error message style */
+        #error-message, #html5-error-message, #iframe-error-message {
+            display: none;
+            color: white;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            padding: 20px;
+            z-index: 1001;
+            background: rgba(255,0,0,0.7);
+            border-radius: 10px;
+        }
+        
+        /* Filter buttons */
+        #filter-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 15px;
+            margin-top: 10px;
+            background: rgba(0,0,0,0.7);
+            position: sticky;
+            top: 60px;
+            z-index: 998;
+            backdrop-filter: blur(5px);
+        }
+        
+        .filter-btn {
+            padding: 8px 20px;
+            border-radius: 25px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: #222;
+            color: white;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .filter-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .filter-btn.active {
+            background: var(--neon-pink);
+            color: white;
+            box-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
+            animation: neon-pulse 1.5s infinite alternate;
+        }
+        
+        /* Channel buttons - unified style */
+        #channel-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 20px auto 0;
+        }
+        
+        .channel-btn {
+            position: relative;
+            width: 240px;
+            height: 220px;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            animation: pulse 2s infinite;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+        }
+        
+        .channel-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .channel-btn.active {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 25px var(--neon-pink);
+            animation: none;
+        }
+        
+        .channel-btn::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            z-index: -1;
+            background: linear-gradient(45deg, 
+                var(--neon-pink), var(--neon-blue), var(--neon-purple), 
+                var(--neon-green), var(--neon-yellow), var(--neon-pink));
+            background-size: 400%;
+            border-radius: 15px;
+            opacity: 0;
+            transition: 0.5s;
+        }
+        
+        .channel-btn:hover::before {
+            opacity: 1;
+            animation: animate-border 8s linear infinite;
+            filter: blur(5px);
+        }
+        
+        .channel-btn img {
             width: 100%;
-            padding: 0 20px 10px;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .channel-btn:hover img {
+            transform: scale(1.05);
+        }
+        
+        .channel-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        
+        .channel-btn:hover .channel-name {
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: var(--neon-blue);
+            text-shadow: 0 0 5px var(--neon-blue), 0 0 10px var(--neon-blue);
+        }
+        
+        .channel-btn.active::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 15px;
+            background: linear-gradient(45deg, var(--neon-pink), var(--neon-blue), var(--neon-pink));
+            z-index: -1;
+            filter: blur(10px);
+            opacity: 0.7;
+            animation: glow 1.5s ease-in-out infinite alternate;
+        }
+        
+        /* LIVE Badge Styles */
+        .channel-btn::after {
+            content: 'LIVE';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ff0000;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 3px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            z-index: 2;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            animation: pulse-live 1.5s infinite;
+        }
+
+        @keyframes pulse-live {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+            }
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 5px rgba(255, 0, 0, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+            }
+        }
+        
+        /* HTML5 Video Player Controls */
+        .controls-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--control-bg);
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            background: transparent;
+            transition: opacity 0.3s ease;
+            opacity: 1;
+            z-index: 10;
+        }
+        
+        #html5-player-container:hover .controls-container {
+            opacity: 1;
         }
         
         .progress-container {
             width: 100%;
-            height: var(--progress-height);
-            background-color: rgba(255, 255, 255, 0.2);
-            margin-bottom: 15px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            margin-bottom: 10px;
             cursor: pointer;
-            position: relative;
-            border-radius: var(--progress-height);
+            border-radius: 3px;
         }
         
         .progress-bar {
             height: 100%;
-            background-color: var(--primary-color);
-            border-radius: var(--progress-height);
-            width: 0%;
+            background: var(--primary-color);
+            border-radius: 3px;
             position: relative;
-            transition: width 0.1s linear;
+            width: 0%;
         }
-
-        .progress-bar::after {
-            content: '';
-            position: absolute;
-            right: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 12px;
-            height: 12px;
-            background-color: var(--primary-color);
-            border-radius: 50%;
-            opacity: 0;
-            transition: opacity var(--transition-speed) ease;
-        }
-
-        .progress-container:hover .progress-bar::after {
-            opacity: 1;
-        }
-
-        .buffer-bar {
+        
+        .buffered-bar {
             position: absolute;
             top: 0;
             left: 0;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.3);
             width: 0%;
-            border-radius: var(--progress-height);
+            border-radius: 3px;
         }
         
         .controls-row {
             display: flex;
             align-items: center;
-            width: 100%;
+            justify-content: space-between;
         }
-
+        
         .left-controls, .right-controls {
             display: flex;
             align-items: center;
-        }
-
-        .right-controls {
-            margin-left: auto;
+            gap: 15px;
         }
         
-        .btn {
-            background: none;
+        .control-btn {
+            background: transparent;
             border: none;
-            color: var(--text-primary);
-            cursor: pointer;
+            color: var(--text-color);
             font-size: 18px;
-            margin: 0 8px;
-            outline: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
             width: 36px;
             height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            transition: all var(--transition-speed) ease;
+            transition: all 0.2s ease;
         }
         
-        .btn:hover {
-            color: var(--primary-color);
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: scale(1.1);
-        }
-
-        .btn i {
-            pointer-events: none;
-        }
-
-        .btn.active {
-            color: var(--primary-color);
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--hover-color);
         }
         
-        .time {
-            font-size: 14px;
-            color: var(--text-primary);
-            font-variant-numeric: tabular-nums;
-            margin: 0 5px;
+        .control-btn:active {
+            transform: scale(0.95);
         }
         
         .volume-container {
             display: flex;
             align-items: center;
-            margin-right: 10px;
-            position: relative;
-        }
-
-        .volume-slider-container {
-            position: absolute;
-            left: 50%;
-            bottom: 100%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 15px 10px;
-            border-radius: 5px;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            width: 40px;
-            margin-bottom: 10px;
-        }
-
-        .volume-container:hover .volume-slider-container {
-            display: flex;
+            gap: 5px;
         }
         
         .volume-slider {
             width: 80px;
             height: 4px;
-            margin: 10px 0;
-            transform: rotate(-90deg);
-            background-color: rgba(255, 255, 255, 0.2);
+            -webkit-appearance: none;
             appearance: none;
-            outline: none;
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 2px;
-            cursor: pointer;
+            outline: none;
+            opacity: 0;
+            transition: opacity 0.2s ease, width 0.2s ease;
         }
-
+        
+        .volume-container:hover .volume-slider {
+            opacity: 1;
+            width: 100px;
+        }
+        
         .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
             appearance: none;
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background-color: var(--primary-color);
+            background: var(--primary-color);
             cursor: pointer;
-            transition: all var(--transition-speed) ease;
-        }
-
-        .volume-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
         }
         
-        .quality-selector {
-            margin-left: 10px;
-            padding: 6px 10px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-            border: none;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            outline: none;
-            transition: all var(--transition-speed) ease;
+        .time-display {
+            font-size: 14px;
+            font-family: monospace;
+            white-space: nowrap;
         }
-
-        .quality-selector:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+        
+        .settings-menu {
+            position: relative;
+        }
+        
+        .settings-dropdown {
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            background: var(--control-bg);
+            border-radius: 5px;
+            padding: 10px;
+            min-width: 150px;
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 10;
+        }
+        
+        .settings-menu:hover .settings-dropdown {
+            display: flex;
+        }
+        
+        .quality-option, .speed-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background 0.2s ease;
+        }
+        
+        .quality-option:hover, .speed-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .quality-option.active, .speed-option.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .fullscreen-btn {
+            margin-left: 10px;
         }
         
         .loading-spinner {
@@ -265,786 +632,1802 @@
             transform: translate(-50%, -50%);
             width: 50px;
             height: 50px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            border: 4px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            border-top-color: var(--primary-color);
-            animation: spin 1s ease-in-out infinite;
+            border-top: 4px solid var(--primary-color);
+            animation: spin 1s linear infinite;
             display: none;
-            z-index: 1002;
         }
-
+        
         @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
         
-        .error-message {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #ff5555;
-            font-size: 16px;
-            text-align: center;
-            display: none;
-            padding: 20px;
-            background-color: rgba(0, 0, 0, 0.8);
-            border-radius: 8px;
-            max-width: 80%;
-            z-index: 1003;
-        }
-        
-        .retry-btn {
-            margin-top: 15px;
-            padding: 8px 20px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all var(--transition-speed) ease;
-        }
-
-        .retry-btn:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-2px);
-        }
-
         .channel-info {
             position: absolute;
-            top: -70px;
-            left: 20px;
+            top: -50px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
             display: flex;
             align-items: center;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 8px 15px;
-            border-radius: 20px;
-            z-index: 1001;
-            opacity: 0;
-            transition: opacity var(--transition-speed) ease;
+            gap: 5px;
+            z-index: 5;
         }
-
-        .player-container:hover .channel-info,
-        .channel-info.visible {
-            opacity: 1;
-        }
-
+        
         .channel-logo {
-            width: 30px;
-            height: 30px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            margin-right: 10px;
             object-fit: cover;
         }
-
-        .channel-name {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .settings-menu {
-            position: absolute;
-            bottom: 70px;
-            right: 20px;
-            background-color: rgba(0, 0, 0, 0.8);
-            border-radius: 8px;
-            padding: 10px 0;
-            min-width: 180px;
-            display: none;
-            flex-direction: column;
-            z-index: 1003;
-            backdrop-filter: blur(10px);
-        }
-
-        .settings-menu.visible {
-            display: flex;
-        }
-
-        .settings-item {
-            padding: 10px 20px;
-            color: var(--text-primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            transition: all var(--transition-speed) ease;
-        }
-
-        .settings-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: var(--primary-color);
-        }
-
-        .settings-item i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .speed-options {
-            display: none;
-            flex-direction: column;
-            background-color: rgba(0, 0, 0, 0.6);
-            margin-top: 5px;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .speed-option {
-            padding: 8px 20px;
-            color: var(--text-primary);
-            cursor: pointer;
-            transition: all var(--transition-speed) ease;
-        }
-
-        .speed-option:hover, .speed-option.active {
-            background-color: rgba(255, 85, 0, 0.3);
-            color: var(--primary-color);
-        }
-
-        .speed-option.active {
-            font-weight: bold;
-        }
-
-        .channel-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 20px;
-            padding: 30px;
-            margin-top: 56.25vw;
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
+        
+        /* Fit screen button */
+        .fit-screen-btn {
+            margin-left: 5px;
         }
         
-        .channel-btn {
-            background: var(--bg-light);
-            border: none;
-            border-radius: 12px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        
-        .channel-btn::before {
-            content: '';
-            position: absolute;
+        /* Fullscreen styles */
+        #html5-player-container.fullscreen, #iframe-player-container.fullscreen {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-            opacity: 0;
-            transition: opacity var(--transition-speed) ease;
-            z-index: 0;
+            max-width: none;
+            z-index: 9999;
+            margin: 0;
+            border-radius: 0;
         }
         
-        .channel-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        #html5-player-container.fullscreen .video-container,
+        #iframe-player-container.fullscreen .iframe-container {
+            height: 100%;
+            padding-top: 0;
         }
         
-        .channel-btn:hover::before {
-            opacity: 0.2;
+        /* Fullscreen landscape styles */
+        @media screen and (orientation: landscape) and (max-height: 500px) {
+            #html5-player-container.fullscreen, #iframe-player-container.fullscreen {
+                width: 100vh;
+                height: 100vw;
+                transform: rotate(90deg) translateY(-100%);
+                transform-origin: top left;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 9999;
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            #html5-player-container.fullscreen .video-container,
+            #iframe-player-container.fullscreen .iframe-container {
+                padding-top: 0;
+                height: 100%;
+            }
+            
+            #html5-player-container.fullscreen #html5-video-player,
+            #iframe-player-container.fullscreen #iframe-player {
+                object-fit: cover;
+            }
         }
         
-        .channel-btn.active {
-            border: 2px solid var(--primary-color);
-        }
-        
-        .channel-btn.active::before {
-            opacity: 0.3;
-        }
-        
-        .channel-btn img {
-            width: 60px;
-            height: 60px;
-            object-fit: contain;
-            margin-bottom: 12px;
-            position: relative;
-            z-index: 1;
-            transition: all 0.3s ease;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-        }
-        
-        .channel-btn:hover img {
-            transform: scale(1.1);
-        }
-        
-        .channel-btn span {
-            color: var(--text-primary);
-            font-weight: 600;
+        /* Copyright Footer */
+        #copyright-footer {
             text-align: center;
+            padding: 20px;
+            font-size: 24px;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            margin-top: 20px;
             position: relative;
-            z-index: 1;
         }
-
-        .channel-btn .live-badge {
+        
+        #copyright-footer::before {
+            content: '';
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #ff0000;
-            color: white;
-            font-size: 10px;
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-weight: bold;
-            z-index: 2;
-            animation: pulse 2s infinite;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+            box-shadow: 0 0 10px var(--neon-blue);
         }
-
+        
+        #copyright-footer::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+        
+        /* Animations */
         @keyframes pulse {
-            0% { opacity: 0.8; }
-            50% { opacity: 1; }
-            100% { opacity: 0.8; }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
         }
-
-        .tooltip {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            white-space: nowrap;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity var(--transition-speed) ease;
-            margin-bottom: 5px;
+        
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 5px var(--neon-pink);
+            }
+            to {
+                box-shadow: 0 0 20px var(--neon-pink);
+            }
         }
-
-        .btn:hover .tooltip {
-            opacity: 1;
+        
+        @keyframes neon-pulse {
+            from {
+                box-shadow: 0 0 5px var(--neon-pink), 0 0 10px var(--neon-pink);
+            }
+            to {
+                box-shadow: 0 0 15px var(--neon-pink), 0 0 30px var(--neon-pink);
+            }
         }
-
-        /* Responsive adjustments */
+        
+        @keyframes animate-border {
+            0% {
+                background-position: 0 0;
+            }
+            50% {
+                background-position: 300% 0;
+            }
+            100% {
+                background-position: 0 0;
+            }
+        }
+        
+        /* JW Player custom styles */
+        .jw-controlbar {
+            background: rgba(0,0,0,0.8) !important;
+        }
+        .jw-icon {
+            color: #fff !important;
+        }
+        .jw-svg-icon {
+            fill: #fff !important;
+        }
+        
+        /* Adjust for mobile */
         @media (max-width: 768px) {
-            .channel-buttons {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            #player {
+                padding-bottom: 56.25%;
+            }
+            
+            #channel-buttons {
                 gap: 15px;
-                padding: 20px;
-            }
-            
-            .channel-btn img {
-                width: 50px;
-                height: 50px;
-            }
-            
-            .btn {
-                font-size: 16px;
-                margin: 0 5px;
-            }
-            
-            .time {
-                font-size: 12px;
-            }
-            
-            .quality-selector {
-                padding: 4px 8px;
-                font-size: 11px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .channel-buttons {
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-                gap: 10px;
-                padding: 15px;
+                padding: 10px;
+                margin-top: 10px;
             }
             
             .channel-btn {
+                width: 160px;
+                height: 140px;
+            }
+            
+            .channel-name {
+                font-size: 14px;
+                padding: 8px;
+            }
+            
+            #filter-buttons {
+                gap: 10px;
+                position: sticky;
                 padding: 10px;
+                top: 70px;
             }
             
-            .channel-btn img {
-                width: 90px;
-                height: 90px;
-                margin-bottom: 8px;
-            }
-            
-            .channel-btn span {
+            .filter-btn {
+                padding: 6px 12px;
                 font-size: 12px;
             }
             
-            .controls {
-                padding: 0 10px 5px;
+            /* Adjust LIVE badge for mobile */
+            .channel-btn::after {
+                top: 5px;
+                right: 5px;
+                font-size: 8px;
+                padding: 2px 4px;
+            }
+            
+            /* Adjust HTML5 player controls for mobile */
+            .volume-slider {
+                display: none;
+            }
+            
+            .time-display {
+                font-size: 12px;
+            }
+            
+            .control-btn {
+                font-size: 16px;
+                width: 32px;
+                height: 32px;
+            }
+            
+            #player-selection {
+                flex-wrap: wrap;
+                padding: 10px;
+                top: 0;
+            }
+            
+            .player-select-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #channel-buttons {
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .channel-btn {
+                width: 140px;
+                height: 120px;
+            }
+            
+            .channel-name {
+                font-size: 12px;
+                padding: 6px;
+            }
+            
+            #copyright-footer {
+                font-size: 16px;
+                padding: 10px;
+            }
+            
+            #player-selection {
+                gap: 8px;
+            }
+            
+            .player-select-btn {
+                padding: 5px 10px;
+                font-size: 10px;
+            }
+            
+            .player-select-btn img {
+                width: 16px;
+                height: 16px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="player-container">
-        <div class="video-container">
-            <video id="video"></video>
-            <div class="loading-spinner" id="loading-spinner"></div>
-            <div class="error-message" id="error-message">
-                <p>An error occurred while loading the video stream.</p>
-                <button class="retry-btn" id="retry-btn">Retry Connection</button>
-            </div>
-            
-            <div class="controls-overlay">
-                <div class="channel-info" id="channel-info">
-                    <img class="channel-logo" id="channel-logo" src="https://cdn-icons-png.flaticon.com/512/3670/3670157.png" alt="Channel Logo">
-                    <span class="channel-name" id="channel-name">Channel Name</span>
-                </div>
-                
-                <div class="controls">
-                    <div class="progress-container" id="progress-container">
-                        <div class="buffer-bar" id="buffer-bar"></div>
-                        <div class="progress-bar" id="progress-bar"></div>
-                    </div>
-                    
-                    <div class="controls-row">
-                        <div class="left-controls">
-                            <button class="btn" id="play-btn" title="Play/Pause">
-                                <i class="fas fa-play"></i>
-                                <span class="tooltip">Play/Pause (Space)</span>
-                            </button>
-                            
-                            <button class="btn" id="rewind-btn" title="Rewind 10s">
-                                <i class="fas fa-backward"></i>
-                                <span class="tooltip">Rewind 10s (←)</span>
-                            </button>
-                            
-                            <button class="btn" id="forward-btn" title="Forward 10s">
-                                <i class="fas fa-forward"></i>
-                                <span class="tooltip">Forward 10s (→)</span>
-                            </button>
-                            
-                            <span class="time" id="current-time">0:00</span>
-                            <span class="time">/</span>
-                            <span class="time" id="duration">0:00</span>
-                        </div>
-                        
-                        <div class="right-controls">
-                            <div class="volume-container">
-                                <button class="btn" id="mute-btn" title="Mute/Unmute">
-                                    <i class="fas fa-volume-up"></i>
-                                    <span class="tooltip">Mute/Unmute (M)</span>
-                                </button>
-                                <div class="volume-slider-container">
-                                    <input type="range" class="volume-slider" id="volume-slider" min="0" max="1" step="0.05" value="1">
-                                </div>
-                            </div>
-                            
-                            <button class="btn" id="settings-btn" title="Settings">
-                                <i class="fas fa-cog"></i>
-                                <span class="tooltip">Settings</span>
-                            </button>
-                            
-                            <select class="quality-selector" id="quality-selector" title="Quality">
-                                <option value="auto">Auto Quality</option>
-                            </select>
-                            
-                            <button class="btn" id="fullscreen-btn" title="Fullscreen">
-                                <i class="fas fa-expand"></i>
-                                <span class="tooltip">Fullscreen (F)</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+    <!-- Player Selection Buttons -->
+    <div id="player-selection">
+        <button class="player-select-btn" id="iframe-player-btn">
+            <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="IFrame"> IFrame Player
+        </button>
+        <button class="player-select-btn" id="jw-player-btn">
+            <img src="https://www.jwplayer.com/wp-content/themes/jwplayer-2018/assets/images/jwplayer-logo.svg" alt="JWPlayer"> JW Player
+        </button>
+        <button class="player-select-btn" id="html5-player-btn">
+            <img src="https://cdn-icons-png.flaticon.com/512/1384/1384028.png" alt="HTML5"> HTML5 Player
+        </button>
+    </div>
+    
+    <!-- IFrame Player Container -->
+    <div id="iframe-player-container">
+        <button id="iframe-player-close">×</button>
+        <div class="iframe-container">
+            <iframe id="iframe-player" allowfullscreen></iframe>
+            <div class="error-message" id="iframe-error-message">
+                <p>An error occurred while loading the iframe.</p>
+                <button class="retry-btn" id="iframe-retry-btn">Retry</button>
             </div>
         </div>
     </div>
-
-    <div class="channel-buttons">
-        <button class="channel-btn active" data-stream="http://opplex.tv:8080/live/2037792/4321382/66162.m3u8" data-logo="https://cdn-icons-png.flaticon.com/512/3670/3670157.png" data-name="Test Stream">
-            <span class="live-badge">LIVE</span>
-            <img src="https://cdn-icons-png.flaticon.com/512/3670/3670157.png" alt="Test Stream">
-            <span>Test Stream</span>
-        </button>
-        
-        <button class="channel-btn" data-stream="http://opplex.tv:8080/live/2037792/4321382/221252.m3u8" data-logo="https://cdn-icons-png.flaticon.com/512/3670/3670166.png" data-name="Sample Stream">
-            <span class="live-badge">LIVE</span>
-            <img src="https://cdn-icons-png.flaticon.com/512/3670/3670166.png" alt="Sample Stream">
-            <span>Sample Stream</span>
-        </button>
+    
+    <!-- JW Player Container -->
+    <div id="player-container">
+        <button id="player-close">×</button>
+        <div id="player"></div>
+        <div id="error-message"></div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elements
-            const video = document.getElementById('video');
-            const playBtn = document.getElementById('play-btn');
-            const rewindBtn = document.getElementById('rewind-btn');
-            const forwardBtn = document.getElementById('forward-btn');
-            const progressBar = document.getElementById('progress-bar');
-            const bufferBar = document.getElementById('buffer-bar');
-            const progressContainer = document.getElementById('progress-container');
-            const currentTimeElement = document.getElementById('current-time');
-            const durationElement = document.getElementById('duration');
-            const muteBtn = document.getElementById('mute-btn');
-            const volumeSlider = document.getElementById('volume-slider');
-            const fullscreenBtn = document.getElementById('fullscreen-btn');
-            const qualitySelector = document.getElementById('quality-selector');
-            const loadingSpinner = document.getElementById('loading-spinner');
-            const errorMessageElement = document.getElementById('error-message');
-            const retryBtn = document.getElementById('retry-btn');
-            const channelButtons = document.querySelectorAll('.channel-btn');
-            const channelInfo = document.getElementById('channel-info');
-            const channelLogo = document.getElementById('channel-logo');
-            const channelName = document.getElementById('channel-name');
-            const controlsOverlay = document.querySelector('.controls-overlay');
-            const playerContainer = document.querySelector('.player-container');
+    
+    <!-- HTML5 Video Player Container -->
+    <div id="html5-player-container">
+        <button id="html5-player-close">×</button>
+        <div class="video-container">
+            <video id="html5-video-player" playsinline></video>
             
-            // State variables
-            let hls = null;
-            let currentStream = '';
-            let hideControlsTimeout;
+            <div class="loading-spinner" id="html5-loading-spinner"></div>
+            
+            <div class="error-message" id="html5-error-message">
+                <p>An error occurred while loading the video.</p>
+                <button class="retry-btn" id="html5-retry-btn">Retry</button>
+            </div>
+            
+            <div class="channel-info" id="html5-channel-info">
+                <img src="" alt="" class="channel-logo" id="html5-channel-logo"> 
+                <span id="html5-channel-name"></span>
+            </div>
+        </div>
+        
+        <div class="controls-container" id="html5-controls-container">
+            <div class="progress-container" id="html5-progress-container">
+                <div class="buffered-bar" id="html5-buffered-bar"></div>
+                <div class="progress-bar" id="html5-progress-bar"></div>
+            </div>
+            
+            <div class="controls-row">
+                <div class="left-controls">
+                    <button class="control-btn" id="html5-play-pause-btn" title="Play/Pause">
+                        <span id="html5-play-icon">▶</span>
+                    </button>
+                    
+                    <div class="volume-container">
+                        <button class="control-btn" id="html5-mute-btn" title="Mute/Unmute">
+                            <span id="html5-volume-icon">🔊</span>
+                        </button>
+                        <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider" id="html5-volume-slider">
+                    </div>
+                    <div class="time-display">
+                        <span id="html5-current-time">00:00</span> 
+                    </div>
+                </div>
+                   
+<button class="control-btn fullscreen-btn" id="html5-fullscreen-btn" title="Fullscreen">⛶</button>
+<button class="control-btn" id="html5-fit-screen-btn" title="Fit Screen">⎚</button>
+                    
+                </div>
+                </div>            
 
-            // Initialize player
-            function initializePlayer(streamUrl, channelLogoUrl, channelNameText) {
-                // Reset UI
-                errorMessageElement.style.display = 'none';
-                loadingSpinner.style.display = 'block';
-                playBtn.querySelector('i').className = 'fas fa-pause';
-                
-                // Update channel info
-                if (channelLogoUrl) channelLogo.src = channelLogoUrl;
-                if (channelNameText) channelName.textContent = channelNameText;
-                currentStream = streamUrl;
-                
-                // Destroy previous HLS instance if exists
-                if (hls) {
-                    hls.destroy();
-                }
-                
-                hls = new Hls({
-                    maxBufferLength: 30,
-                    maxMaxBufferLength: 600,
-                    maxBufferSize: 60 * 1000 * 1000,
-                    maxBufferHole: 0.5,
-                    lowLatencyMode: false,
-                    enableWorker: true,
-                    startLevel: -1, // Auto quality
-                });
-                
-                if (Hls.isSupported()) {
-                    hls.loadSource(streamUrl);
-                    hls.attachMedia(video);
-                    
-                    hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
-                        loadingSpinner.style.display = 'none';
+
+
+
+
+
+ 
+                <div class="right-controls">
+                    <div class="settings-menu">
+                        <button class="control-btn" id="html5-settings-btn" title="Settings">⚙️</button>
                         
-                        // Populate quality selector
-                        qualitySelector.innerHTML = '<option value="auto">Auto Quality</option>';
-                        if (data.levels && data.levels.length > 1) {
-                            qualitySelector.style.display = 'block';
-                            data.levels.forEach((level, index) => {
-                                const option = document.createElement('option');
-                                option.value = index;
-                                option.text = `${level.height}p${level.bitrate ? ` (${Math.round(level.bitrate / 1000)}kbps)` : ''}`;
-                                qualitySelector.appendChild(option);
-                            });
-                        } else {
-                            qualitySelector.style.display = 'none';
-                        }
+                        <div class="settings-dropdown" id="html5-settings-dropdown">
+                      <div class="quality-option active" data-speed="1.0">Normal (1.0x)</div>
+                            <div class="quality-option" data-speed="1.25">Fast (1.25x)</div>
+                            <div class="quality-option" data-speed="1.5">Fast (1.5x)</div>
+                            <div class="quality-option" data-speed="2.0">Fast (2.0x)</div>
+                        </div>
+                    </div>       
                         
-                        // Start playing
-                        video.play().catch(e => {
-                            console.error('Autoplay failed:', e);
-                            playBtn.querySelector('i').className = 'fas fa-play';
-                        });
-                    });
+                
+                   
                     
-                    hls.on(Hls.Events.ERROR, function(event, data) {
-                        console.error('HLS Error:', data);
-                        if (data.fatal) {
-                            switch(data.type) {
-                                case Hls.ErrorTypes.NETWORK_ERROR:
-                                    console.error('Network Error - trying to recover');
-                                    hls.startLoad();
-                                    break;
-                                case Hls.ErrorTypes.MEDIA_ERROR:
-                                    console.error('Media Error - trying to recover');
-                                    hls.recoverMediaError();
-                                    break;
-                                default:
-                                    handleError();
-                                    break;
+        </div>
+    </div>
+    
+    <!-- Filter Buttons -->
+    <div id="filter-buttons">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="entertainment">Entertainment</button>
+        <button class="filter-btn" data-filter="news">News</button>
+        <button class="filter-btn" data-filter="movies">Movies</button>
+        <button class="filter-btn" data-filter="music">Music</button>
+        <button class="filter-btn" data-filter="kids">Kids</button>
+        <button class="filter-btn" data-filter="sports">Sports</button>
+    </div>
+    
+    <!-- Channel Buttons -->
+    <div id="channel-buttons">
+        <!-- Entertainment Channels -->
+        	
+        
+         <div class="channel-btn entertainment" 
+             data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeetv/default/manifest.mpd" 
+             data-keyid="ed068cf84f0640ccbc7c0e395c0a272e" 
+             data-key="bb722190f2bb446391020411a7d0828b">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/yHNSuG1V.png" alt="Zee TV">
+            <div class="channel-name">Zee TV</div>
+        </div>       
+        
+ <div class="channel-btn entertainment" 
+             data-player="html5"
+             data-src="https://live.dinesh29.com.np/stream/jiotvplus/starplus/stream_0.m3u8?uid=298774994" 
+             data-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Plus.png"data-name="Star Plus">
+            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Plus.png"><div class="channel-name"></div></div>
+        
+         
+                       
+        
+        
+        
+        
+        
+        
+        
+        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeeanmol/default/manifest.mpd"
+             data-keyid="4023613457774cbeb71a62c339970e63"
+             data-key="1c3e9fce5f014542be9cd1f749181204">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/QjKdER9Z.png" alt="Zee Anmool">
+            <div class="channel-name">Zee Anmool</div>
+        </div>
+          
+      <div class="channel-btn movies" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeecinema/default/manifest.mpd"
+             data-keyid="43513b13f4b542e39c9265921dfc1726"
+             data-key="b0b2678bcd274c37b888a6c987d502ed">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Zee_Cinema.png" alt="Zee Cinema">
+            <div class="channel-name">Zee Cinema</div>
+        </div>
+      
+<div class="channel-btn movies" 
+             data-player="html5"
+             data-src="https://mini.allinonereborn.online/ze/live.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105540/ZeeCinemaHDELE/index-connected.m3u8&token=JITENDRA_KUMAR&e.m3u8 " 
+             data-logo=" " 
+             data-name="ZeeCinemaHD">
+            <img src="https://i.ibb.co/fzKNtyFg/Zee-cinema-HD.jpg ">
+            <div class="channel-name">ZeeCinemaHD</div></div>  
+
+
+
+
+
+
+
+
+  
+        
+        <div class="channel-btn movies" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeebollywood/default/manifest.mpd"
+             data-keyid="e61523260c614746b25b9a5523fe9a39"
+             data-key="72ddbf37f76f49acbb8e140e7279e7a1">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/EqDlflgi.png">
+            <div class="channel-name">Zee Bollywood</div>
+        </div>
+        
+        <div class="channel-btn movies" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeeanmolcinema/default/manifest.mpd"
+             data-keyid="812411cba8bc42c79eb2b19cd78ad3f3"
+             data-key="468a0b8d3d5d42d8a5c41bb875390a74">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/diYkUOnX.png">
+            <div class="channel-name">Zee Anmol Cinema</div>
+        </div>
+
+
+      
+ 
+        
+<div class="channel-btn movies" 
+             data-player="html5"
+             data-src=" https://mini.allinonereborn.online/ze/live.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105171/ZeeGangaELE/master.m3u8&token=JITENDRA_KUMAR&e.m3u8" 
+             data-logo=" " 
+             data-name="name">
+            <img src=" https://i.ibb.co/Dg5vyqzZ/Zee-Anmol-Cinema-2.png">
+            <div class="channel-name">Zee Anmol Cinema 2</div></div>   
+ 
+ <div class="channel-btn entertainment" 
+             data-player="html5"
+             data-src=" https://mini.allinonereborn.online/ze/live.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105170/ZeePunjabiELE/master.m3u8&token=JITENDRA_KUMAR&e.m3u8" 
+             data-logo=" " 
+             data-name="name">
+            <img src="https://i.ibb.co/7JnGjGqw/Zee-Punjaabi.png">
+            <div class="channel-name">ZeePunjabi</div></div>  
+            
+            
+       <div class="channel-btn music" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zing/default/manifest.mpd"
+             data-keyid="f0fb14eebe474a6ab74c8301d55a7224"
+             data-key="f9f8b2e30704458b8db844a285ce32be">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/Nyi83z1G.png">
+            <div class="channel-name">Zing</div>
+        </div>     
+     <div class="channel-btn music" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zoom2/default/manifest.mpd"
+             data-keyid="86edec9e3b7d4042a4d4a1ca14f847ee"
+             data-key="9def4315f0004019a3705bcb3cf30ca3">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/jLvKrs62.png">
+            <div class="channel-name">Zoom</div>
+        </div>       
+            
+            
+ 
+<div class="channel-btn entertainment" 
+             data-player="html5"
+             data-src="https://mini.allinonereborn.online/ze/live.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105176/BigMagicELE/master.m3u8&token=JITENDRA_KUMAR&e.m3u8" 
+             data-logo=" " 
+             data-name="name">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTl0fqyqfzi0MOJWNSibAIhnf_bgXY3XfVn787CsYcWCvRZ24wVwH1kY-0&s=10">
+            <div class="channel-name">Big Magic</div></div>   
+   
+        
+     <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Andtv/default/manifest.mpd"
+             data-keyid="26df86eeebb04d7fbc45c948f76e81fd"
+             data-key="5f3a23f1a73c4c96ababce5fffe7b06b">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/And_TV.png" alt="And TV">
+            <div class="channel-name">And TV</div>
+        </div>
+        
+ 
+ <div class="channel-btn entertainment" 
+             data-player="html5"
+             data-src="https://mini.allinonereborn.online/ze/live.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105504/AndTVHDELE/index-connected.m3u8&token=JITENDRA_KUMAR&e.m3u8" 
+             data-logo=" " 
+             data-name="AND-TV HD">
+            <img src="https://akamaividz2.zee5.com/image/upload/w_396,h_224,c_scale,f_webp,q_auto:eco/resources/0-9-tvhd_0/cover/1920x7702020794400">
+            <div class="channel-name">AND-TV HD</div>
+        </div>  
+        
+ <div class="channel-btn movies" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Andpictures/default/manifest.mpd"
+             data-keyid="8dea532cabfe4f71ba20f62310e7949f"
+             data-key="7a214a974e4f4d1d9bb66364d5f0cb92">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/HivVrdof.png">
+            <div class="channel-name">And Pictures</div>
+        </div>
+        
+ 
+ 
+ 
+ 
+ <div class="channel-btn movies" 
+             data-player="html5"
+             data-src="https://mini.allinonereborn.online/ze/live.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105174/ANDPicturesHDELE/index-connected.m3u8&token=JITENDRA_KUMAR&e.m3u8 " 
+             data-logo=" " 
+             data-name="name">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqUMCewLNnSwActPyvBYbKlrjCMHWn5CrLt8p--A3tz0NXEofC3-XUESs&s=10 ">
+            <div class="channel-name">ANDPicturesHD</div></div>  
+               
+        
+        
+       
+<!-- IFrame Channels -->
+        <div class="channel-btn entertainment" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-hd"
+             
+             data-name="SONY-TV HD">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sony_HD.png">
+            <div class="channel-name">SONY-TV HD</div></div>
+            
+            
+            
+            
+            
+        
+<div class="channel-btn entertainment" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-sab-hd "
+             
+             data-name="Sony_SAB_HD">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sony_SAB_HD.png ">
+            <div class="channel-name">Sony_SAB_HD</div></div>        
+        
+   <div class="channel-btn entertainment" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-pal "
+             
+             data-name="Sony_Pal">
+            <img src=" https://jiotv.catchup.cdn.jio.com/dare_images/images/Sony_Pal.png">
+            <div class="channel-name">Sony_Pal</div></div>      
+     <div class="channel-btn kids" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-yay "
+             
+             data-name="Sony_Yay">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sony_Yay_Hindi.png ">
+            <div class="channel-name">Sony_Yay</div></div>    
+   <div class="channel-btn movies" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-max "
+             
+             data-name="Sony_Max_SD">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sony_Max_SD.png">
+            <div class="channel-name">Sony_Max_SD</div></div> 
+
+<div class="channel-btn movies" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-max-hd"
+             
+             data-name="Sony_Max_HD">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sony_Max_HD.png">
+            <div class="channel-name">Sony_Max_HD</div></div>        
+        
+   <div class="channel-btn movies" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-max-2"
+             
+             data-name="Sony-max-2">
+            <img src="https://i.ibb.co/qLvfH0p3/Sony-max-2-logo.png ">
+            <div class="channel-name">Sony-max-2</div></div>      
+     <div class="channel-btn movies" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-wah"
+             
+             data-name="Sony_Wah">
+            <img src=" https://jiotv.catchup.cdn.jio.com/dare_images/images/Sony_Wah.png">
+            <div class="channel-name">Sony_Wah</div></div>    
+            
+            
+            
+   <div class="channel-btn movies" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-pix-hd"
+             
+             data-name="SONY-PIX-HD">
+            <img src="https://ltsk-cdn.s3.eu-west-1.amazonaws.com/jumpstart/Temp_Live/cdn/HLS/Channel/transparentImages/SONY-PIX-HD-Transparent.png ">
+            <div class="channel-name">SONY-PIX-HD</div></div> 
+
+<div class="channel-btn entertainment" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-bbc-earth-hd "
+             
+             data-name="SONY-BBC-EARTH">
+            <img src=" https://ltsk-cdn.s3.eu-west-1.amazonaws.com/jumpstart/Temp_Live/cdn/HLS/Channel/transparentImages/SONY-BBC-EARTH-HD1-Transparent.png">
+            <div class="channel-name">SONY-BBC-EARTH</div></div>        
+        
+        
+ 
+            
+            
+
+<div class="channel-btn entertainment" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=1368&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Colors_SD.png">
+            <div class="channel-name">Colors SD</div>
+        </div>
+        
+        <div class="channel-btn entertainment" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=144&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Colors_HD.png" alt="Colors HD">
+            <div class="channel-name">Colors HD</div>
+        </div>
+        
+        <div class="channel-btn entertainment" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=279&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Rishtey.png" alt="Rishtey">
+            <div class="channel-name">Rishtey</div>
+        </div>
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      
+        
+        
+        
+        
+        
+        
+        
+        
+       
+
+        
+
+
+ 
+        
+  
+        
+          
+        
+        
+        
+        
+        
+        <div class="channel-btn movies" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=482&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Colors_Cineplex.png">
+            <div class="channel-name">Colors Cineplex</div>
+        </div>
+        
+        <div class="channel-btn movies" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=1477&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Color_Cineplex_HD.png">
+            <div class="channel-name">Colors Cineplex HD</div>
+        </div>
+        
+        <div class="channel-btn movies" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=1763&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Colors_Cineplex_Bollywood.png">
+            <div class="channel-name">Cineplex Bollywood</div>
+        </div>
+        
+        <div class="channel-btn movies" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=1450&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Rishtey_Cineplex.png">
+            <div class="channel-name">Cineplex Superhit</div>
+        </div>
+        
+        <div class="channel-btn movies" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=1366&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Wow_Cinema_One.png">
+            <div class="channel-name">Wow Cinema</div>
+        </div>
+        
+        
+        
+        
+        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2065&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Saregama_Music.png">
+            <div class="channel-name">Saregama Music</div>
+        </div>
+        
+        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2325&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Punjabi_Melodies.png">
+            <div class="channel-name">Punjabi Melodies</div>
+        </div>
+        
+        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2750&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Saga_Music.png">
+            <div class="channel-name">Saga Music</div>
+        </div>
+        
+        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2753&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/YRF_Music.png">
+            <div class="channel-name">YRF Music</div>
+        </div>
+        
+        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2778&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Tabbar_Hits.png">
+            <div class="channel-name">Tabbar Hits</div>
+        </div>
+        
+        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2934&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Punjabi_Hits.png">
+            <div class="channel-name">Punjabi Hits</div>
+        </div>
+        
+        
+        
+        
+        
+        
+        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=248&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/MTV.png">
+            <div class="channel-name">MTV</div>
+        </div>
+        
+        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=250&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Music_India.png">
+            <div class="channel-name">Music India</div>
+        </div>
+        
+        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=440&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/9X_Jalwa.png">
+            <div class="channel-name">9X Jalwa</div>
+        </div>
+        
+        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=587&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/9XM.png">
+            <div class="channel-name">9XM</div>
+        </div>
+        
+        <div class="channel-btn music" data-stream="https://sablive-ddpb.akamaized.net/mastii/playlist.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Mastiii.png">
+            <div class="channel-name">Mastiii</div>
+        </div>
+        
+        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2252&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Desi_Music_Station.png">
+            <div class="channel-name">Desi Music Station</div>
+        </div>
+        
+        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=1145&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/MTV_HD_Plus.png">
+            <div class="channel-name">MTV HD+</div>
+        </div>
+        
+        <!-- Kids Channels -->
+        <div class="channel-btn kids" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoverykids2/default/manifest.mpd"
+             data-keyid="601f58d4b7094d2baf78c85d1d9cb6c9"
+             data-key="609e0cc03198455fa36fd2cc3e7f940d">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/RzedYhFG.png">
+            <div class="channel-name">Discovery Kids</div>
+        </div>
+        
+        <div class="channel-btn kids" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=545&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Nick_Hindi.png">
+            <div class="channel-name">Nick Hindi</div>
+        </div>
+        
+        <div class="channel-btn kids" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=548&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Nickelodeon_Jr.png">
+            <div class="channel-name">Nickelodeon Jr</div>
+        </div>
+        
+        
+
+        
+        
+        
+        
+        
+        <div class="channel-btn kids" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=554&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Discovery_Kids_2.png">
+            <div class="channel-name">Discovery Kids 2</div>
+        </div>
+        
+        <div class="channel-btn kids" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=815&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/sonic_Hindi.png">
+            <div class="channel-name">Sonic Hindi</div>
+        </div>
+        
+        <div class="channel-btn kids" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2774&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Power_Kids_TV.png">
+            <div class="channel-name">Power Kids TV</div>
+        </div>
+        
+        <!-- Other Channels -->
+        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoverychannel2/default/manifest.mpd"
+             data-keyid="b70a8cf9450c4d6484b4ac4d3c6761c0"
+             data-key="0908be844260409cbac180bf0181da40">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/UyI5ljKM.png">
+            <div class="channel-name">Discovery</div>
+        </div>
+        
+        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoveryscience2/default/manifest.mpd"
+             data-keyid="5458f45efedb4d6f8aa6ac76c85b621b"
+             data-key="dbf8a0a306a64525ba3012fd225370c0">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/vIA7TExn.png">
+            <div class="channel-name">Discovery Science</div>
+        </div>
+        
+        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Investigationdiscovery2/default/manifest.mpd"
+             data-keyid="2828ea6f6a984505b0454da0c03f68b9"
+             data-key="5d3b7195086544c2807aa8c1544e7379">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/mHhlDCiL.png">
+            <div class="channel-name">Discovery Investigation</div>
+        </div>
+        
+        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoveryturbo2/default/manifest.mpd"
+             data-keyid="c011525969e44b99a86059dbb3cdf4e8"
+             data-key="6700a5d93203417b8585f7de7dd1a09b">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/6eCv1iuk.png">
+            <div class="channel-name">Discovery Turbo</div>
+        </div>
+        
+        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Tlc2/default/manifest.mpd"
+             data-keyid="e48e7373d6be47ecab83a20849f6823e"
+             data-key="513ce07a2ee24ffdbe667eff5a9d46a8">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/FOvFsIgt.png">
+            <div class="channel-name">TLC</div>
+        </div>
+        
+        
+        
+        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Koreandramas2/default/manifest.mpd"
+             data-keyid="ed197e7253c04946903f03bad9afac91"
+             data-key="99ebb8683ea74b70a9fda1cbdc2cc1b4">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/BNu8WvFw.png">
+            <div class="channel-name">Korean Drama Active</div>
+        </div>
+        
+        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Shortstv2/default/manifest.mpd"
+             data-keyid="b994480f788d41ddbc805862ac469416"
+             data-key="78a6a0fc1758483595da7113e58e4467">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/lcMc75Xr.png">
+            <div class="channel-name">Shorts TV Active</div>
+        </div>
+        
+        <div class="channel-btn sports" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/ts_live_1985.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sports18_Khel.png">
+            <div class="channel-name">Star Sports</div>
+        </div>
+        
+        <div class="channel-btn sports" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/ts_live_1984.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sports18_1_SD.png">
+            <div class="channel-name">Star Sports 2</div>
+        </div>
+        
+        
+        
+     <div class="channel-btn sports" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/ts_live_1984.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sports18_1_SD.png">
+            <div class="channel-name">Star Sports 2</div>
+        </div>   
+        
+        
+        
+        <div class="channel-btn entertainment" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=3071&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/TV_Asia.png">
+            <div class="channel-name">TV Asia</div>
+        </div>
+        
+        <div class="channel-btn music" data-stream="https://live-e24.dailyhunt.in/eternowsa/live/amlst:E24_,b256,b512,b1024,b1824,.smil/playlist.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/E_24.png">
+            <div class="channel-name">E 24</div>
+        </div>
+        
+        
+    
+    <div class="channel-btn news" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeehindustan/default/manifest.mpd"
+             data-keyid="10616d7c4bee41f1825bd805c6295172"
+             data-key="dc85f2112f63477fb39fc149493c49be">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/TknReKLD.png" alt="Zee Hindustan">
+            <div class="channel-name">Zee Hindustan</div></div>
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        
+    <div class="channel-btn entertainment" data-stream="https://live-dangal.akamaized.net/liveabr/playlist.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Dangal.png " alt="dangalTV">
+            <div class="channel-name">DangalTV</div></div>
+            
+            
+            
+         <div class="channel-btn movies" 
+             data-stream="https://live2.shoq.com.pk/live/eds/B4U_Movies/DASH/B4U_Movies.mpd" 
+             data-keyid="bb0c6b6f0e2c873a174e63e16f3a3f62" 
+             data-key="a8c4fae3ea8023b51707e470ec336209">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYixZD7IsMHMmFyu-UH_Ucdpy33TsxzUvq8SIIhrTZqmhvru4XQyWsPfw&s=10" alt="B4U MOVIES">
+            <div class="channel-name"></div>
+        </div>       
+            
+            
+    
+    <div class="channel-btn movies" data-stream="https://cdn-2.pishow.tv/live/419/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/B4U_Movies.png " alt="B4U_Movies">
+            <div class="channel-name">B4U_Movies</div></div>
+    
+    <div class="channel-btn music" data-stream="https://cdn-2.pishow.tv/live/415/master.m3u8 "
+             data-keyid=" "
+             data-key=" ">
+            <img src=" https://jiotv.catchup.cdn.jio.com/dare_images/images/B4U_Music.png" alt="B4U_Music">
+            <div class="channel-name">B4U_Music</div></div>
+    
+    <div class="channel-btn movies" data-stream="https://cdn-2.pishow.tv/live/227/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src=" https://jiotv.catchup.cdn.jio.com/dare_images/images/B4U_Kadak.png" alt="B4U_Kadak">
+            <div class="channel-name">B4U_Kadak</div></div>
+    
+    
+    <div class="channel-btn entertainment" data-stream="https://vg-pitaaratvlive.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-583798/playlist.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Pitaara.png " alt="Pitaara">
+            <div class="channel-name">Pitaara</div></div>
+        
+    <div class="channel-btn music" data-stream="https://epiconvh.akamaized.net/live/showbox/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://i.ibb.co/fYp2mkMm/Picsart-25-04-18-11-24-53-151.png" alt="showbox">
+            <div class="channel-name">showbox</div></div>
+    
+    <div class="channel-btn entertainment" data-stream="https://vg-theqlive.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-306905/main.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/TheQIndia.png " alt="theqlive">
+            <div class="channel-name">TheQIndia</div></div>
+    
+    <div class="channel-btn entertainment" data-stream="https://cdn-1.pishow.tv/live/1291/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Dhamaal_TV.png" alt="Dhamaal_TV">
+            <div class="channel-name">Dhamaal_TV</div></div>
+    
+    <div class="channel-btn movies" data-stream="https://ssailive.vgcdn.net/sg/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/b6e0af97-b4c7-443e-a152-a8caa844c256/main.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://d229kpbsb5jevy.cloudfront.net/tv/480/270/languages/bbo.jpg" alt="BBO">
+            <div class="channel-name">BBO</div></div>
+    
+    
+    <div class="channel-btn music" data-stream="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/shemaroo-filmigaane/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Shemaroo_TV.png " alt="shemaroo-filmigaane">
+            <div class="channel-name">shemaroo-filmigaane</div></div>
+        
+    <div class="channel-btn movies" data-stream="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/shemaroo-bollywood/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Shemaroo_Umang.png" alt="shemaroo-bollywood">
+            <div class="channel-name">shemaroo-bollywood</div></div>
+    
+    <div class="channel-btn entertainment" data-stream="https://cdn-1.pishow.tv/live/1013/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Manoranjan_TV.png" alt="Manoranjan_TV">
+            <div class="channel-name">Manoranjan_TV</div></div>
+    
+    <div class="channel-btn movies" data-stream="https://cdn-1.pishow.tv/live/1011/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Manoranjan_Grand.png " alt="Manoranjan_Grand">
+            <div class="channel-name">Manoranjan_Grand</div></div>
+    
+    <div class="channel-btn movies" data-stream="https://cdn-6.pishow.tv/live/10007/master.m3u8 "
+             data-keyid=" "
+             data-key=" ">
+            <img src=" https://jiotv.catchup.cdn.jio.com/dare_images/images/Maha_Movies.png" alt="Maha_Movies">
+            <div class="channel-name">Maha_Movies</div></div>
+    
+    <div class="channel-btn entertainment" data-stream="https://d2lk5u59tns74c.cloudfront.net/out/v1/67cec794d8b14f9ba21f73924ac65797/index.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJ5AwZokVNzOHGn-5_OJYBhCUv6lQyCaP8ilXwAJS6i5NJYQ9j29f3V3Bn&s=10  " alt="DD Bharati">
+            <div class="channel-name">DD Bharati</div></div>
+        
+    <div class="channel-btn entertainment" data-stream="https://d3qs3d2rkhfqrt.cloudfront.net/out/v1/40492a64c1db4a1385ba1a397d357d3a/index.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://i.ibb.co/HTQQkGzS/Picsart-25-04-18-11-25-41-161.png" alt="DD National">
+            <div class="channel-name">DD National</div></div>
+    
+    <div class="channel-btn entertainment" data-stream="https://d3eyhgoylams0m.cloudfront.net/v1/manifest/93ce20f0f52760bf38be911ff4c91ed02aa2fd92/ed7bd2c7-8d10-4051-b397-2f6b90f99acb/20c8ad14-a158-4a42-8889-e032d070856e/2.m3u8 "
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQp1OYfmugsbWOrMUv99qajPVbKpnWKLApWiDvYK1REHb7j96-zhZ2lpfc&s=10 " alt="DD Punjaabi">
+            <div class="channel-name">Punjaabi</div></div>
+    
+    <div class="channel-btn sports" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/ts_live_204.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/DD_Sports.png" alt="DD_Sports">
+            <div class="channel-name">DD_Sports</div></div>
+    
+    <div class="channel-btn news" data-stream="https://ddlive.b-cdn.net/19/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/DD_News.png " alt="DD_News">
+            <div class="channel-name">DD_News</div></div>
+    
+    
+    
+    
+ <div class="channel-btn music" data-stream="https://mcncdndigital.com/balleballetv/index.m3u8 ">
+            <img src="http://balleballe.tv/wp-content/uploads/2019/07/logo-e1568618159543.png ">
+            <div class="channel-name">balleballetv</div></div>   
+    
+ <div class="channel-btn entertainment" data-stream="https://epiconvh.akamaized.net/live/nazara/master.m3u8 ">
+            <img src="https://i.ibb.co/pvCX0fw5/Picsart-25-04-18-11-50-11-661.jpg ">
+            <div class="channel-name">nazara</div></div>      
+    
+   <div class="channel-btn movies" data-stream="https://epiconvh.akamaized.net/live/filamchi/master_864.m3u8">
+            <img src="https://www.adgully.com/img/800/202105/filamachienglish-black.jpg ">
+            <div class="channel-name">filamchi</div></div>    
+    
+   <div class="channel-btn movies" data-stream="https://cdn-2.pishow.tv/live/1459/master.m3u8">
+    <img src="https://i.pinimg.com/736x/1c/9a/08/1c9a085c1fe6a240cfa29004c0a36b05.jpg" alt="Goldmines">
+    <div class="channel-name">Goldmines</div>
+</div>
+
+<div class="channel-btn movies" data-stream="https://cdn-2.pishow.tv/live/1460/master.m3u8">
+    <img src="https://i.pinimg.com/736x/a3/e6/61/a3e661d1dfac520cfed7e1dd44bb8581.jpg" alt="Goldmines Bollywood">
+    <div class="channel-name">Goldmines Bollywood</div>
+</div>
+
+<div class="channel-btn movies" data-stream="https://cdn-2.pishow.tv/live/1461/master.m3u8">
+    <img src="https://i.pinimg.com/736x/09/62/d9/0962d9a7c965d5ecb70f1a6f5c8f93dd.jpg" alt="Goldmines Movies">
+    <div class="channel-name">Goldmines Movies</div>
+</div>
+
+<div class="channel-btn entertainment" data-stream="https://anjantvevent.pc.cdn.bitgravity.com/anjantv/live/amlst:event_anjan_,b400,b800,b1024,b1200,b1500,b4000,.smil/chunklist_b4000000.m3u8">
+    <img src="https://i.pinimg.com/736x/76/bd/a0/76bda01f96b00c711bc9023f38aa1c0a.jpg" alt="anjan tv">
+    <div class="channel-name">Anjan TV</div>
+</div>
+
+<div class="channel-btn entertainment" data-stream="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/arre/master.m3u8">
+    <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Arre.png" alt="Arre tv">
+    <div class="channel-name">Arre TV</div>
+</div>
+
+<div class="channel-btn movies" data-stream="https://livecdn.live247stream.com/joomusic/tv/playlist.m3u8">
+    <img src="https://www.joomusic.net/assets/images/logo.png" alt="Joo music">
+    <div class="channel-name">Joo Music</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<div class="channel-btn music" data-stream="https://cdn2.in/SteelbirdMusicTVhls/live.m3u8">
+    <img src="https://i.ibb.co/27vcPGBY/Picsart-25-04-18-11-30-28-867.png" alt="Steelbird Music">
+    <div class="channel-name">Steelbird Music</div>
+</div>
+
+
+
+<div class="channel-btn news" data-stream="https://dknttpxmr0dwf.cloudfront.net/index_3.m3u8">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-rB4AxUKsXi4KQdvGYMO_5fdLhOYwWuJpr6rvjefSeQwF-VRGNIUCtYg&s=10" alt="Steelbird Music">
+    <div class="channel-name">Zee News</div>
+</div>
+
+
+
+
+
+<div class="channel-btn news" data-stream="https://d2o3r1shda7xvv.cloudfront.net/index_5.m3u8">
+    <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Zee_Salaam.png" alt="Zee Salaam">
+    <div class="channel-name">Zee Salaam</div>
+</div>
+
+<div class="channel-btn news" data-stream="https://d31s6sxcz6vnac.cloudfront.net/index_3.m3u8">
+    <img src="https://i.pinimg.com/736x/b7/10/24/b7102420be9a0f9702d310bfc95e80bf.jpg" alt="zee punjab haryana">
+    <div class="channel-name">Zee Punjab Haryana</div>
+</div>
+
+<div class="channel-btn news" data-stream="https://abplivetv.pc.cdn.bitgravity.com/httppush/abp_livetv/abp_abpnews/master.m3u8">
+    <img src="https://i.pinimg.com/736x/62/be/31/62be317f79ba2aacaad9499ae57c4e22.jpg" alt="Abp news">
+    <div class="channel-name">ABP News</div>
+</div>
+
+<div class="channel-btn news" data-stream="https://aajtaklive-amd.akamaized.net/hls/live/2014416/aajtak/aajtaklive/live_720p/chunks.m3u8">
+    <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Aaj_Tak.png" alt="Aajtakk">
+    <div class="channel-name">Aaj Tak</div>
+</div>
+
+<div class="channel-btn news" data-stream="https://feeds.intoday.in/aajtak/api/at2/master.m3u8">
+    <img src="https://akm-img-a-in.tosshub.com/aajtak/resources/at2logo_97x552x.png" alt="aajtakk 2">
+    <div class="channel-name">Aaj Tak 2</div>
+</div>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         
+            
+            
+            
+        
+            
+            
+            
+            
+ 
+ <div class="channel-btn sports" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-ten-1-hd "
+             data-name="Sony Ten1 HD">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Ten_HD.png "><div class="channel-name">SonyTen 1_HD</div></div>
+            
+                   
+   <div class="channel-btn sports" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-ten-2-hd "
+             data-name="Sony Ten2_HD">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Ten2_HD.png ">
+            <div class="channel-name">Ten2_HD</div></div>  
+<div class="channel-btn sports" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-ten-3-hd "
+             data-name="Sony Ten 3HD">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Ten3_HD.png">
+            <div class="channel-name">Ten3_HD</div></div>
+            
+<div class="channel-btn sports" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-ten-4-hd"
+             data-name="Sony Ten 4HD">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Ten_4_HD_Tamil.png">
+            <div class="channel-name">Ten_4_HD</div></div>
+     
+   <div class="channel-btn sports" 
+             data-player="iframe"
+             data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-ten-5-hd "
+             data-name="Sony Ten 5HD">
+            <img src=" https://jiotv.catchup.cdn.jio.com/dare_images/images/Six_HD.png">
+            <div class="channel-name">Ten 5 HD</div></div>
+
+            
+            
+     
+            
+            
+            
+            
+            
+            
+        
+
+        
+   
+
+     
+        <!-- More channels... -->
+    </div>
+    
+    <!-- Copyright Footer -->
+    <div id="copyright-footer">
+        &copy; 2025 IndianTV-Live. All Rights Reserved.By:Syed Muzammil Shah 
+    </div>
+    
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Player Selection variables
+        const iframePlayerBtn = document.getElementById('iframe-player-btn');
+        const jwPlayerBtn = document.getElementById('jw-player-btn');
+        const html5PlayerBtn = document.getElementById('html5-player-btn');
+        
+        // IFrame Player variables
+        const iframePlayerContainer = document.getElementById('iframe-player-container');
+        const iframePlayerClose = document.getElementById('iframe-player-close');
+        const iframePlayer = document.getElementById('iframe-player');
+        const iframeErrorMessage = document.getElementById('iframe-error-message');
+        const iframeRetryBtn = document.getElementById('iframe-retry-btn');
+        
+        // JW Player variables
+        let jwPlayerInstance;
+        const jwPlayerContainer = document.getElementById('player-container');
+        const jwPlayerClose = document.getElementById('player-close');
+        const jwErrorMsg = document.getElementById('error-message');
+        
+        // HTML5 Video Player variables
+        const html5PlayerContainer = document.getElementById('html5-player-container');
+        const html5PlayerClose = document.getElementById('html5-player-close');
+        const html5VideoPlayer = document.getElementById('html5-video-player');
+        const html5LoadingSpinner = document.getElementById('html5-loading-spinner');
+        const html5ErrorMessage = document.getElementById('html5-error-message');
+        const html5RetryBtn = document.getElementById('html5-retry-btn');
+        const html5ControlsContainer = document.getElementById('html5-controls-container');
+        const html5PlayPauseBtn = document.getElementById('html5-play-pause-btn');
+        const html5PlayIcon = document.getElementById('html5-play-icon');
+        const html5MuteBtn = document.getElementById('html5-mute-btn');
+        const html5VolumeIcon = document.getElementById('html5-volume-icon');
+        const html5VolumeSlider = document.getElementById('html5-volume-slider');
+        const html5ProgressBar = document.getElementById('html5-progress-bar');
+        const html5BufferedBar = document.getElementById('html5-buffered-bar');
+        const html5ProgressContainer = document.getElementById('html5-progress-container');
+        const html5CurrentTimeDisplay = document.getElementById('html5-current-time');
+        const html5DurationDisplay = document.getElementById('html5-duration');
+        const html5FullscreenBtn = document.getElementById('html5-fullscreen-btn');
+        const html5FitScreenBtn = document.getElementById('html5-fit-screen-btn');
+        const html5SettingsDropdown = document.getElementById('html5-settings-dropdown');
+        const html5SettingsBtn = document.getElementById('html5-settings-btn');
+        const html5SpeedOptions = document.querySelectorAll('#html5-settings-dropdown .quality-option');
+        const html5ChannelLogo = document.getElementById('html5-channel-logo');
+        const html5ChannelName = document.getElementById('html5-channel-name');
+        
+        // Common variables
+        const buttons = document.querySelectorAll('.channel-btn');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        // Function to close all players
+        function closeAllPlayers() {
+            iframePlayerContainer.classList.remove('visible');
+            jwPlayerContainer.classList.remove('visible');
+            html5PlayerContainer.classList.remove('visible');
+            
+            if (jwPlayerInstance) {
+                jwPlayerInstance.pause();
+            }
+            
+            if (html5VideoPlayer) {
+                html5VideoPlayer.pause();
+            }
+            
+            // Clear iframe source
+            iframePlayer.src = '';
+        }
+        
+        // Setup player selection buttons
+        function setupPlayerSelection() {
+            iframePlayerBtn.addEventListener('click', function() {
+                closeAllPlayers();
+                iframePlayerContainer.classList.add('visible');
+                updateActivePlayerButton(this);
+            });
+            
+            jwPlayerBtn.addEventListener('click', function() {
+                closeAllPlayers();
+                jwPlayerContainer.classList.add('visible');
+                updateActivePlayerButton(this);
+            });
+            
+            html5PlayerBtn.addEventListener('click', function() {
+                closeAllPlayers();
+                html5PlayerContainer.classList.add('visible');
+                updateActivePlayerButton(this);
+            });
+            
+            function updateActivePlayerButton(activeButton) {
+                // Remove active class from all buttons
+                iframePlayerBtn.classList.remove('active');
+                jwPlayerBtn.classList.remove('active');
+                html5PlayerBtn.classList.remove('active');
+                
+                // Add active class to clicked button
+                activeButton.classList.add('active');
+            }
+        }
+        
+        // Setup IFrame Player
+        function setupIFramePlayer() {
+            iframePlayerClose.addEventListener('click', function() {
+                iframePlayerContainer.classList.remove('visible');
+                iframePlayer.src = '';
+            });
+            
+            iframeRetryBtn.addEventListener('click', function() {
+                iframePlayer.src = iframePlayer.src;
+            });
+        }
+        
+        // Initialize JW Player
+        function initJWPlayer() {
+            try {
+                jwPlayerInstance = jwplayer("player").setup({
+                    playlist: [{
+                        file: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeetv/default/manifest.mpd",
+                        image: "https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/yHNSuG1V.png",
+                        drm: {
+                            clearkey: {
+                                keyId: "ed068cf84f0640ccbc7c0e395c0a272e",
+                                key: "bb722190f2bb446391020411a7d0828b"
                             }
                         }
-                    });
-                    
-                    hls.on(Hls.Events.FRAG_BUFFERED, function() {
-                        updateBufferBar();
-                    });
-                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    // For Safari which supports HLS natively
-                    video.src = streamUrl;
-                    loadingSpinner.style.display = 'none';
-                    video.addEventListener('loadedmetadata', function() {
-                        video.play().catch(e => {
-                            console.error('Autoplay failed:', e);
-                            playBtn.querySelector('i').className = 'fas fa-play';
-                        });
+                    }],
+                    width: '100%',
+                    height: '100%',
+                    autostart: false,
+                    mute: false,
+                    primary: "html5",
+                    hlshtml: true,
+                    stretching: "uniform"
+                });
+
+                jwPlayerInstance.on('ready', function() {
+                    jwPlayerInstance.setMute(false);
+                });
+
+                jwPlayerInstance.on('error', function(e) {
+                    showJWError('Player error: ' + e.message);
+                });
+
+                jwPlayerInstance.on('setupError', function(e) {
+                    showJWError('Setup error: ' + e.message);
+                });
+
+            } catch (error) {
+                showJWError('Failed to initialize player: ' + error.message);
+            }
+        }
+        
+        function showJWError(message) {
+            console.error(message);
+            jwErrorMsg.textContent = message;
+            jwErrorMsg.style.display = 'block';
+            setTimeout(() => {
+                jwErrorMsg.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Setup HTML5 Video Player
+        function setupHTML5Player() {
+            // Play/Pause functionality
+            html5PlayPauseBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleHTML5PlayPause();
+            });
+            
+            html5VideoPlayer.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleHTML5PlayPause();
+            });
+            
+            function toggleHTML5PlayPause() {
+                if (html5VideoPlayer.paused) {
+                    html5VideoPlayer.play().then(() => {
+                        html5PlayIcon.textContent = '❚❚';
+                    }).catch(e => {
+                        console.log('Play failed:', e);
                     });
                 } else {
-                    handleError();
+                    html5VideoPlayer.pause();
+                    html5PlayIcon.textContent = '▶';
                 }
+                showHTML5ControlsTemporarily();
             }
             
-            function handleError() {
-                loadingSpinner.style.display = 'none';
-                errorMessageElement.style.display = 'block';
-                console.error('HLS is not supported or an error occurred');
+            // Mute functionality
+            html5MuteBtn.addEventListener('click', toggleHTML5Mute);
+            
+            function toggleHTML5Mute() {
+                html5VideoPlayer.muted = !html5VideoPlayer.muted;
+                updateHTML5VolumeIcon();
+                showHTML5ControlsTemporarily();
             }
             
-            function updateBufferBar() {
-                if (video.buffered.length > 0) {
-                    const bufferedEnd = video.buffered.end(video.buffered.length - 1);
-                    const duration = video.duration;
-                    if (duration > 0) {
-                        const bufferPercent = (bufferedEnd / duration) * 100;
-                        bufferBar.style.width = `${bufferPercent}%`;
-                    }
-                }
-            }
+            // Volume slider
+            html5VolumeSlider.addEventListener('input', function() {
+                html5VideoPlayer.volume = this.value;
+                html5VideoPlayer.muted = this.value === 0;
+                updateHTML5VolumeIcon();
+                showHTML5ControlsTemporarily();
+            });
             
-            // Play/Pause
-            function togglePlay() {
-                if (video.paused) {
-                    video.play();
-                    playBtn.querySelector('i').className = 'fas fa-pause';
+            function updateHTML5VolumeIcon() {
+                if (html5VideoPlayer.muted || html5VideoPlayer.volume === 0) {
+                    html5VolumeIcon.textContent = '🔇';
+                    html5VolumeSlider.value = 0;
+                } else if (html5VideoPlayer.volume > 0.5) {
+                    html5VolumeIcon.textContent = '🔊';
                 } else {
-                    video.pause();
-                    playBtn.querySelector('i').className = 'fas fa-play';
+                    html5VolumeIcon.textContent = '🔉';
                 }
-                showControlsTemporarily();
             }
-            
-            playBtn.addEventListener('click', togglePlay);
-            
-            video.addEventListener('play', function() {
-                playBtn.querySelector('i').className = 'fas fa-pause';
-            });
-            
-            video.addEventListener('pause', function() {
-                playBtn.querySelector('i').className = 'fas fa-play';
-            });
-            
-            // Seek buttons
-            rewindBtn.addEventListener('click', function() {
-                video.currentTime = Math.max(0, video.currentTime - 10);
-                showControlsTemporarily();
-            });
-            
-            forwardBtn.addEventListener('click', function() {
-                video.currentTime = Math.min(video.duration, video.currentTime + 10);
-                showControlsTemporarily();
-            });
             
             // Progress bar
-            video.addEventListener('timeupdate', function() {
-                if (!isNaN(video.duration)) {
-                    const progress = (video.currentTime / video.duration) * 100;
-                    progressBar.style.width = `${progress}%`;
-                    
-                    // Update time display
-                    currentTimeElement.textContent = formatTime(video.currentTime);
-                    durationElement.textContent = formatTime(video.duration);
+            html5VideoPlayer.addEventListener('timeupdate', updateHTML5Progress);
+            html5ProgressContainer.addEventListener('click', seekHTML5);
+            
+            function updateHTML5Progress() {
+                const percent = (html5VideoPlayer.currentTime / html5VideoPlayer.duration) * 100;
+                html5ProgressBar.style.width = `${percent}%`;
+                
+                // Update buffered bar
+                if (html5VideoPlayer.buffered.length > 0) {
+                    const bufferedEnd = html5VideoPlayer.buffered.end(html5VideoPlayer.buffered.length - 1);
+                    const bufferedPercent = (bufferedEnd / html5VideoPlayer.duration) * 100;
+                    html5BufferedBar.style.width = `${bufferedPercent}%`;
                 }
                 
-                updateBufferBar();
+                // Update time display
+                html5CurrentTimeDisplay.textContent = formatTime(html5VideoPlayer.currentTime);
+                
+                // Show loading spinner if buffering
+                if (html5VideoPlayer.readyState < 3) {
+                    html5LoadingSpinner.style.display = 'block';
+                } else {
+                    html5LoadingSpinner.style.display = 'none';
+                }
+            }
+            
+            function seekHTML5(e) {
+                const percent = e.offsetX / html5ProgressContainer.offsetWidth;
+                html5VideoPlayer.currentTime = percent * html5VideoPlayer.duration;
+                showHTML5ControlsTemporarily();
+            }
+            
+            // Time formatting
+            function formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                seconds = Math.floor(seconds % 60);
+                return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            // Duration display
+            html5VideoPlayer.addEventListener('loadedmetadata', function() {
+                html5DurationDisplay.textContent = formatTime(html5VideoPlayer.duration);
             });
             
-            // Click on progress bar to seek
-            progressContainer.addEventListener('click', function(e) {
-                const width = this.clientWidth;
-                const clickX = e.offsetX;
-                const duration = video.duration;
-                video.currentTime = (clickX / width) * duration;
-                showControlsTemporarily();
-            });
+            // Fullscreen functionality
+            html5FullscreenBtn.addEventListener('click', toggleHTML5Fullscreen);
             
-            // Volume controls
-            muteBtn.addEventListener('click', function() {
-                video.muted = !video.muted;
-                muteBtn.querySelector('i').className = video.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
-                volumeSlider.value = video.muted ? 0 : video.volume;
-                showControlsTemporarily();
-            });
-            
-            volumeSlider.addEventListener('input', function() {
-                video.volume = this.value;
-                video.muted = this.value == 0;
-                muteBtn.querySelector('i').className = this.value == 0 ? 'fas fa-volume-mute' : 
-                    this.value < 0.5 ? 'fas fa-volume-down' : 'fas fa-volume-up';
-            });
-            
-            // Fullscreen
-            fullscreenBtn.addEventListener('click', function() {
+            function toggleHTML5Fullscreen() {
                 if (!document.fullscreenElement) {
-                    playerContainer.requestFullscreen().catch(err => {
+                    html5PlayerContainer.requestFullscreen().catch(err => {
                         console.error(`Error attempting to enable fullscreen: ${err.message}`);
                     });
-                    fullscreenBtn.querySelector('i').className = 'fas fa-compress';
+                    html5PlayerContainer.classList.add('fullscreen');
                 } else {
                     document.exitFullscreen();
-                    fullscreenBtn.querySelector('i').className = 'fas fa-expand';
+                    html5PlayerContainer.classList.remove('fullscreen');
                 }
-                showControlsTemporarily();
-            });
+                showHTML5ControlsTemporarily();
+            }
             
-            // Quality selector
-            qualitySelector.addEventListener('change', function() {
-                if (hls) {
-                    if (this.value === 'auto') {
-                        hls.currentLevel = -1;
-                    } else {
-                        hls.currentLevel = parseInt(this.value);
-                    }
+            // Handle fullscreen change events
+            document.addEventListener('fullscreenchange', function() {
+                if (!document.fullscreenElement) {
+                    html5PlayerContainer.classList.remove('fullscreen');
                 }
-                showControlsTemporarily();
             });
             
-            // Retry button
-            retryBtn.addEventListener('click', function() {
-                initializePlayer(currentStream, channelLogo.src, channelName.textContent);
+            // Fit screen functionality
+            let html5FitMode = 'contain';
+            html5FitScreenBtn.addEventListener('click', toggleHTML5FitScreen);
+            
+            function toggleHTML5FitScreen() {
+                const fitModes = ['contain', 'cover', 'fill'];
+                const currentIndex = fitModes.indexOf(html5FitMode);
+                html5FitMode = fitModes[(currentIndex + 1) % fitModes.length];
+                
+                html5VideoPlayer.style.objectFit = html5FitMode;
+                
+                // Update button icon based on current mode
+                switch(html5FitMode) {
+                    case 'contain':
+                        html5FitScreenBtn.textContent = '⎚';
+                        break;
+                    case 'cover':
+                        html5FitScreenBtn.textContent = '⧉';
+                        break;
+                    case 'fill':
+                        html5FitScreenBtn.textContent = '⧠';
+                        break;
+                }
+                
+                showHTML5ControlsTemporarily();
+            }
+            
+            // Loading and error handling
+            html5VideoPlayer.addEventListener('waiting', function() {
+                html5LoadingSpinner.style.display = 'block';
             });
             
-            // Channel buttons
-            channelButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const streamUrl = this.getAttribute('data-stream');
-                    const logoUrl = this.getAttribute('data-logo');
-                    const nameText = this.getAttribute('data-name');
-                    
-                    initializePlayer(streamUrl, logoUrl, nameText);
-                    
-                    // Update active button style
-                    channelButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    showControlsTemporarily();
-                });
+            html5VideoPlayer.addEventListener('playing', function() {
+                html5LoadingSpinner.style.display = 'none';
+                html5ErrorMessage.style.display = 'none';
+            });
+            
+            html5VideoPlayer.addEventListener('error', function() {
+                html5LoadingSpinner.style.display = 'none';
+                html5ErrorMessage.style.display = 'block';
+            });
+            
+            html5RetryBtn.addEventListener('click', function() {
+                html5ErrorMessage.style.display = 'none';
+                html5VideoPlayer.load();
+                html5VideoPlayer.play().catch(e => console.log(e));
             });
             
             // Controls visibility
-            function showControlsTemporarily() {
-                controlsOverlay.classList.add('visible');
-                clearTimeout(hideControlsTimeout);
-                
-                if (!video.paused) {
-                    hideControlsTimeout = setTimeout(() => {
-                        controlsOverlay.classList.remove('visible');
-                    }, 3000);
+            let html5ControlsTimeout;
+            let html5ControlsVisible = true;
+            
+            html5PlayerContainer.addEventListener('mousemove', function() {
+                if (!html5ControlsVisible) {
+                    html5ControlsContainer.style.opacity = '1';
+                    html5ControlsVisible = true;
                 }
+                showHTML5ControlsTemporarily();
+            });
+            
+            function showHTML5ControlsTemporarily() {
+                clearTimeout(html5ControlsTimeout);
+                html5ControlsContainer.style.opacity = '1';
+                html5ControlsVisible = true;
+                
+                html5ControlsTimeout = setTimeout(() => {
+                    if (!html5VideoPlayer.paused) {
+                        html5ControlsContainer.style.opacity = '0';
+                        html5ControlsVisible = false;
+                    }
+                }, 3000);
             }
             
-            playerContainer.addEventListener('mousemove', function() {
-                if (!video.paused) {
-                    showControlsTemporarily();
-                }
+            // Playback speed settings
+            html5SettingsBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                html5SettingsDropdown.style.display = html5SettingsDropdown.style.display === 'flex' ? 'none' : 'flex';
+                showHTML5ControlsTemporarily();
             });
             
-            playerContainer.addEventListener('click', function() {
-                if (video.paused) {
-                    showControlsTemporarily();
-                }
+            html5SpeedOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const speed = parseFloat(this.getAttribute('data-speed'));
+                    html5VideoPlayer.playbackRate = speed;
+                    
+                    // Update active state
+                    html5SpeedOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    html5SettingsDropdown.style.display = 'none';
+                    showHTML5ControlsTemporarily();
+                });
             });
             
-            // Keyboard shortcuts
-            document.addEventListener('keydown', function(e) {
-                // Ignore if typing in an input field
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-                
-                switch(e.key.toLowerCase()) {
-                    case ' ':
-                        // Space to play/pause
-                        e.preventDefault();
-                        togglePlay();
-                        break;
-                    case 'f':
-                        // F for fullscreen
-                        fullscreenBtn.click();
-                        break;
-                    case 'm':
-                        // M for mute
-                        muteBtn.click();
-                        break;
-                    case 'arrowleft':
-                        // Left arrow to rewind
-                        e.preventDefault();
-                        rewindBtn.click();
-                        break;
-                    case 'arrowright':
-                        // Right arrow to forward
-                        e.preventDefault();
-                        forwardBtn.click();
-                        break;
-                    case 'arrowup':
-                        // Up arrow to increase volume
-                        e.preventDefault();
-                        if (video.volume < 0.95) {
-                            video.volume += 0.05;
-                        } else {
-                            video.volume = 1;
+            // Close settings when clicking elsewhere
+            document.addEventListener('click', function() {
+                html5SettingsDropdown.style.display = 'none';
+            });
+            
+            // Initialize volume icon
+            updateHTML5VolumeIcon();
+        }
+        
+        // Setup channel buttons with click handlers
+        function setupChannelButtons() {
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const playerType = this.getAttribute('data-player');
+                    const streamUrl = this.getAttribute('data-stream');
+                    const imageUrl = this.querySelector('img').src;
+                    const channelName = this.querySelector('.channel-name').textContent;
+                    const keyId = this.getAttribute('data-keyid');
+                    const key = this.getAttribute('data-key');
+                    const headers = this.getAttribute('data-headers');
+                    const html5Src = this.getAttribute('data-src');
+                    const html5Logo = this.getAttribute('data-logo');
+                    const html5Name = this.getAttribute('data-name');
+                    const iframeSrc = this.getAttribute('data-iframe');
+                    const iframeLogo = this.getAttribute('data-logo');
+                    const iframeName = this.getAttribute('data-name');
+
+                    // Remove active class from all buttons and add to clicked one
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    document.title = channelName + " - IndianTV-Live";
+
+                    // Close all players first
+                    closeAllPlayers();
+                    
+                    if (playerType === 'html5') {
+                        // Show HTML5 player
+                        html5PlayerContainer.classList.add('visible');
+                        html5PlayerBtn.classList.add('active');
+                        
+                        // Change HTML5 video source
+                        changeHTML5Channel(html5Src, html5Logo, html5Name);
+                    } else if (playerType === 'iframe') {
+                        // Show IFrame player
+                        iframePlayerContainer.classList.add('visible');
+                        iframePlayerBtn.classList.add('active');
+                        
+                        // Change IFrame source
+                        changeIFrameChannel(iframeSrc, iframeLogo, iframeName);
+                    } else {
+                        // Show JW Player
+                        jwPlayerContainer.classList.add('visible');
+                        jwPlayerBtn.classList.add('active');
+                        
+                        // Change JW Player source
+                        changeJWChannel(streamUrl, imageUrl, channelName, keyId, key, headers);
+                    }
+                });
+            });
+        }
+        
+        function changeJWChannel(streamUrl, imageUrl, channelName, keyId, key, headers) {
+            try {
+                const playlistItem = {
+                    file: streamUrl,
+                    image: imageUrl
+                };
+
+                if (keyId && key) {
+                    playlistItem.drm = {
+                        clearkey: {
+                            keyId: keyId,
+                            key: key
                         }
-                        volumeSlider.value = video.volume;
-                        muteBtn.querySelector('i').className = video.volume == 0 ? 'fas fa-volume-mute' : 
-                            video.volume < 0.5 ? 'fas fa-volume-down' : 'fas fa-volume-up';
-                        break;
-                    case 'arrowdown':
-                        // Down arrow to decrease volume
-                        e.preventDefault();
-                        if (video.volume > 0.05) {
-                            video.volume -= 0.05;
-                        } else {
-                            video.volume = 0;
-                        }
-                        volumeSlider.value = video.volume;
-                        muteBtn.querySelector('i').className = video.volume == 0 ? 'fas fa-volume-mute' : 
-                            video.volume < 0.5 ? 'fas fa-volume-down' : 'fas fa-volume-up';
-                        break;
+                    };
                 }
-            });
-            
-            // Format time as HH:MM:SS or MM:SS
-            function formatTime(seconds) {
-                const hours = Math.floor(seconds / 3600);
-                const minutes = Math.floor((seconds % 3600) / 60);
-                const secs = Math.floor(seconds % 60);
-                
-                if (hours > 0) {
-                    return `${hours}:${minutes < 10 ? '0' : ''}${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-                } else {
-                    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+
+                if (headers) {
+                    try {
+                        playlistItem.headers = JSON.parse(headers);
+                    } catch (e) {
+                        console.warn('Failed to parse headers', e);
+                    }
                 }
+
+                jwPlayerInstance.load([playlistItem]);
+                jwPlayerInstance.setMute(false);
+                jwPlayerInstance.play();
+
+            } catch (error) {
+                showJWError('Error loading channel: ' + error.message);
             }
+        }
+        
+        function changeHTML5Channel(src, logo, name) {
+            html5LoadingSpinner.style.display = 'block';
+            html5ErrorMessage.style.display = 'none';
             
-            // Initialize player with default stream
-            const activeChannel = document.querySelector('.channel-btn.active');
-            initializePlayer(
-                activeChannel.getAttribute('data-stream'),
-                activeChannel.getAttribute('data-logo'),
-                activeChannel.getAttribute('data-name')
-            );
+            // Update channel info
+            html5ChannelLogo.src = logo;
+            html5ChannelLogo.alt = name;
+            html5ChannelName.textContent = name;
             
-            // Show controls initially
-            showControlsTemporarily();
+            // Change video source
+            html5VideoPlayer.src = src;
+            html5VideoPlayer.load();
             
-            // Show channel info after a delay
-            setTimeout(() => {
-                channelInfo.classList.add('visible');
-            }, 1000);
-            
-            // Handle fullscreen change (for browsers that don't support the fullscreen API)
-            document.addEventListener('fullscreenchange', function() {
-                if (!document.fullscreenElement) {
-                    fullscreenBtn.querySelector('i').className = 'fas fa-expand';
-                }
+            // Try to play
+            html5VideoPlayer.play().then(() => {
+                html5PlayIcon.textContent = '❚❚';
+                html5LoadingSpinner.style.display = 'none';
+            }).catch(e => {
+                console.log('Autoplay blocked:', e);
+                html5PlayIcon.textContent = '▶';
+                html5LoadingSpinner.style.display = 'none';
             });
+        }
+        
+        function changeIFrameChannel(src, logo, name) {
+            iframeErrorMessage.style.display = 'none';
+            iframePlayer.src = src;
+        }
+        
+        // Setup filter buttons
+        function setupFilterButtons() {
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Update active state of filter buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Filter channels
+                    if (filter === 'all') {
+                        buttons.forEach(btn => btn.style.display = 'block');
+                    } else {
+                        buttons.forEach(btn => {
+                            btn.style.display = btn.classList.contains(filter) ? 'block' : 'none';
+                        });
+                    }
+                });
+            });
+        }
+        
+        // Close buttons functionality
+        jwPlayerClose.addEventListener('click', function() {
+            jwPlayerContainer.classList.remove('visible');
+            if (jwPlayerInstance) {
+                jwPlayerInstance.pause();
+            }
         });
+        
+        html5PlayerClose.addEventListener('click', function() {
+            html5PlayerContainer.classList.remove('visible');
+            html5VideoPlayer.pause();
+        });
+        
+        // Initialize everything
+        setupPlayerSelection();
+        setupIFramePlayer();
+        initJWPlayer();
+        setupHTML5Player();
+        setupChannelButtons();
+        setupFilterButtons();
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (jwPlayerInstance) {
+                jwPlayerInstance.resize(
+                    document.getElementById('player-container').offsetWidth, 
+                    document.getElementById('player-container').offsetHeight
+                );
+            }
+        });
+    });
     </script>
 </body>
 </html>
