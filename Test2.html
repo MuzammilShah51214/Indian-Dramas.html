@@ -1,16 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IndianTV-Live</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="assets/logo.png">
-    
-    <!-- JW Player -->
-    <script src="https://ssl.p.jwpcdn.com/player/v/8.26.0/jwplayer.js"></script>
-    <script>jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";</script>
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.7/shaka-player.ui.js"></script>
     <style>
         :root {
             --neon-pink: #ff2a6d;
@@ -26,13 +21,42 @@
             --hover-color: #1a8cff;
         }
         
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+        
+        body {
             font-family: 'Segoe UI', Arial, sans-serif;
             background-color: #111;
             color: #fff;
             overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        /* Header and Navigation */
+        header {
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .logo {
+            height: 60px;
+            width: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 15px var(--neon-blue);
         }
         
         /* Player Selection Buttons */
@@ -44,13 +68,13 @@
             margin-top: 10px;
             background: rgba(0,0,0,0.7);
             position: sticky;
-            top: 0;
+            top: 110px;
             z-index: 999;
             backdrop-filter: blur(5px);
         }
         
         .player-select-btn {
-            padding: 8px 20px;
+            padding: 10px 20px;
             border-radius: 25px;
             border: none;
             font-weight: bold;
@@ -86,8 +110,8 @@
             object-fit: contain;
         }
         
-        /* IFrame Player Container */
-        #iframe-player-container {
+        /* Player Containers */
+        .player-container {
             position: fixed;
             top: 0;
             left: 0;
@@ -101,11 +125,11 @@
             display: none;
         }
         
-        #iframe-player-container.visible {
+        .player-container.visible {
             display: block;
         }
         
-        #iframe-player-close {
+        .player-close {
             position: absolute;
             top: 10px;
             right: 10px;
@@ -126,143 +150,44 @@
             justify-content: center;
         }
         
-        #iframe-player-close:hover {
+        .player-close:hover {
             transform: scale(1.1);
             box-shadow: 0 0 20px var(--neon-pink);
         }
         
-        .iframe-container {
+        .iframe-container, .video-container, .shaka-video-container {
             position: relative;
             width: 100%;
             padding-top: 56.25%; /* 16:9 Aspect Ratio */
         }
         
-        #iframe-player {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 250px;
-            background: #000;
-            border: none;
-        }
-        
-        /* JW Player Container */
-        #player-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: auto;
-            max-width: 100%;
-            margin: 0;
-            z-index: 1000;
-            background: #000;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
-            transition: opacity 0.3s ease;
-            display: none;
-        }
-        
-        #player-container.visible {
-            display: block;
-        }
-        
-        #player-close {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 30px;
-            height: 30px;
-            background: var(--neon-pink);
-            border-radius: 50%;
-            border: none;
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            z-index: 1001;
-            box-shadow: 0 0 10px var(--neon-pink);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        #player-close:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 20px var(--neon-pink);
-        }
-        
-        #player {
-            position: relative;
-            width: 100%;
-            height: 0;
-            padding-bottom: 56.25%;
-        }
-        
-        /* HTML5 Video Player Container */
-        #html5-player-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: auto;
-            max-width: 100%;
-            margin: 0;
-            z-index: 1000;
-            background: #000;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
-            display: none;
-        }
-        
-        #html5-player-container.visible {
-            display: block;
-        }
-        
-        #html5-player-close {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 30px;
-            height: 30px;
-            background: var(--neon-pink);
-            border-radius: 50%;
-            border: none;
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            z-index: 1001;
-            box-shadow: 0 0 10px var(--neon-pink);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        #html5-player-close:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 20px var(--neon-pink);
-        }
-        
-        .video-container {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%; /* 16:9 Aspect Ratio */
-        }
-        
-        #html5-video-player {
+        #iframe-player, #html5-video-player, #shaka-video-player {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: #000;
-            object-fit: contain;
+            border: none;
         }
         
-        /* Common error message style */
-        #error-message, #html5-error-message, #iframe-error-message {
+        /* Loading and Error Styles */
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--neon-pink);
+            animation: spin 1s linear infinite;
+            display: none;
+            z-index: 1002;
+        }
+        
+        .error-message {
             display: none;
             color: white;
             text-align: center;
@@ -270,11 +195,23 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 24px;
+            font-size: 18px;
             padding: 20px;
             z-index: 1001;
             background: rgba(255,0,0,0.7);
             border-radius: 10px;
+            width: 80%;
+        }
+        
+        .retry-btn {
+            margin-top: 15px;
+            padding: 8px 20px;
+            background: var(--neon-pink);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
         }
         
         /* Filter buttons */
@@ -287,7 +224,7 @@
             margin-top: 10px;
             background: rgba(0,0,0,0.7);
             position: sticky;
-            top: 60px;
+            top: 180px;
             z-index: 998;
             backdrop-filter: blur(5px);
         }
@@ -320,7 +257,7 @@
             animation: neon-pulse 1.5s infinite alternate;
         }
         
-        /* Channel buttons - unified style */
+        /* Channel buttons */
         #channel-buttons {
             display: flex;
             flex-wrap: wrap;
@@ -461,7 +398,7 @@
             }
         }
         
-        /* HTML5 Video Player Controls */
+        /* HTML5 Player Controls */
         .controls-container {
             position: absolute;
             bottom: 0;
@@ -625,25 +562,6 @@
             margin-left: 10px;
         }
         
-        .loading-spinner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid var(--primary-color);
-            animation: spin 1s linear infinite;
-            display: none;
-        }
-        
-        @keyframes spin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        
         .channel-info {
             position: absolute;
             top: -50px;
@@ -671,7 +589,7 @@
         }
         
         /* Fullscreen styles */
-        #html5-player-container.fullscreen, #iframe-player-container.fullscreen {
+        .player-container.fullscreen {
             position: fixed;
             top: 0;
             left: 0;
@@ -683,37 +601,253 @@
             border-radius: 0;
         }
         
-        #html5-player-container.fullscreen .video-container,
-        #iframe-player-container.fullscreen .iframe-container {
+        .player-container.fullscreen .video-container,
+        .player-container.fullscreen .iframe-container,
+        .player-container.fullscreen .shaka-video-container {
             height: 100%;
             padding-top: 0;
         }
         
-        /* Fullscreen landscape styles */
-        @media screen and (orientation: landscape) and (max-height: 500px) {
-            #html5-player-container.fullscreen, #iframe-player-container.fullscreen {
-                width: 100vh;
-                height: 100vw;
-                transform: rotate(90deg) translateY(-100%);
-                transform-origin: top left;
-                position: fixed;
-                top: 0;
-                left: 0;
-                z-index: 9999;
-                margin: 0;
-                border-radius: 0;
-            }
-            
-            #html5-player-container.fullscreen .video-container,
-            #iframe-player-container.fullscreen .iframe-container {
-                padding-top: 0;
-                height: 100%;
-            }
-            
-            #html5-player-container.fullscreen #html5-video-player,
-            #iframe-player-container.fullscreen #iframe-player {
-                object-fit: cover;
-            }
+        /* Shaka Player Source Buttons */
+        .shaka-source-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            padding: 10px;
+        }
+        
+        .shaka-source-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .shaka-source-btn:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-pink);
+        }
+        
+        .shaka-source-btn.active {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.5);
+        }
+        
+        .shaka-source-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .shaka-source-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 10px;
+            padding: 2px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Shaka Player Custom Controls */
+        .shaka-controls-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--control-bg);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            transition: opacity 0.3s ease;
+            opacity: 1;
+            z-index: 10;
+        }
+        
+        #shaka-player-container:hover .shaka-controls-container {
+            opacity: 1;
+        }
+        
+        .shaka-progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            margin-bottom: 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .shaka-progress-bar {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 3px;
+            position: relative;
+            width: 0%;
+        }
+        
+        .shaka-buffered-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            width: 0%;
+            border-radius: 3px;
+        }
+        
+        .shaka-controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .shaka-left-controls, .shaka-right-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .shaka-control-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .shaka-control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--hover-color);
+        }
+        
+        .shaka-control-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .shaka-volume-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .shaka-volume-slider {
+            width: 80px;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            outline: none;
+            opacity: 0;
+            transition: opacity 0.2s ease, width 0.2s ease;
+        }
+        
+        .shaka-volume-container:hover .shaka-volume-slider {
+            opacity: 1;
+            width: 100px;
+        }
+        
+        .shaka-volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+        
+        .shaka-time-display {
+            font-size: 14px;
+            font-family: monospace;
+            white-space: nowrap;
+        }
+        
+        .shaka-settings-menu {
+            position: relative;
+        }
+        
+        .shaka-settings-dropdown {
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            background: var(--control-bg);
+            border-radius: 5px;
+            padding: 10px;
+            min-width: 150px;
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 10;
+        }
+        
+        .shaka-settings-menu:hover .shaka-settings-dropdown {
+            display: flex;
+        }
+        
+        .shaka-quality-option, .shaka-speed-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background 0.2s ease;
+        }
+        
+        .shaka-quality-option:hover, .shaka-speed-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .shaka-quality-option.active, .shaka-speed-option.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .shaka-fullscreen-btn {
+            margin-left: 10px;
+        }
+        
+        .shaka-channel-info {
+            position: absolute;
+            top: -50px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 5;
+        }
+        
+        .shaka-channel-logo {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        /* Fit screen button */
+        .shaka-fit-screen-btn {
+            margin-left: 5px;
         }
         
         /* Copyright Footer */
@@ -786,23 +920,13 @@
             }
         }
         
-        /* JW Player custom styles */
-        .jw-controlbar {
-            background: rgba(0,0,0,0.8) !important;
-        }
-        .jw-icon {
-            color: #fff !important;
-        }
-        .jw-svg-icon {
-            fill: #fff !important;
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
         
         /* Adjust for mobile */
         @media (max-width: 768px) {
-            #player {
-                padding-bottom: 56.25%;
-            }
-            
             #channel-buttons {
                 gap: 15px;
                 padding: 10px;
@@ -823,7 +947,7 @@
                 gap: 10px;
                 position: sticky;
                 padding: 10px;
-                top: 70px;
+                top: 150px;
             }
             
             .filter-btn {
@@ -857,12 +981,35 @@
             #player-selection {
                 flex-wrap: wrap;
                 padding: 10px;
-                top: 0;
+                top: 90px;
             }
             
             .player-select-btn {
                 padding: 6px 12px;
                 font-size: 12px;
+            }
+            
+            header {
+                padding: 10px;
+            }
+            
+            .logo {
+                height: 40px;
+            }
+            
+            /* Adjust Shaka player controls for mobile */
+            .shaka-volume-slider {
+                display: none;
+            }
+            
+            .shaka-time-display {
+                font-size: 12px;
+            }
+            
+            .shaka-control-btn {
+                font-size: 16px;
+                width: 32px;
+                height: 32px;
             }
         }
         
@@ -904,13 +1051,20 @@
     </style>
 </head>
 <body>
+    <!-- Header with Logo -->
+    <header>
+        <div class="logo-container">
+            <img src="https://cdn-icons-png.flaticon.com/512/2889/2889676.png" alt="IndianTV-Live Logo" class="logo">
+        </div>
+    </header>
+    
     <!-- Player Selection Buttons -->
     <div id="player-selection">
         <button class="player-select-btn" id="iframe-player-btn">
             <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="IFrame"> IFrame Player
         </button>
-        <button class="player-select-btn" id="jw-player-btn">
-            <img src="https://www.jwplayer.com/wp-content/themes/jwplayer-2018/assets/images/jwplayer-logo.svg" alt="JWPlayer"> JW Player
+        <button class="player-select-btn" id="shaka-player-btn">
+            <img src="https://shaka-player-demo.appspot.com/assets/favicon.ico" alt="ShakaPlayer"> Shaka Player
         </button>
         <button class="player-select-btn" id="html5-player-btn">
             <img src="https://cdn-icons-png.flaticon.com/512/1384/1384028.png" alt="HTML5"> HTML5 Player
@@ -918,27 +1072,84 @@
     </div>
     
     <!-- IFrame Player Container -->
-    <div id="iframe-player-container">
-        <button id="iframe-player-close">×</button>
+    <div id="iframe-player-container" class="player-container">
+        <button class="player-close" id="iframe-player-close">×</button>
         <div class="iframe-container">
             <iframe id="iframe-player" allowfullscreen></iframe>
             <div class="error-message" id="iframe-error-message">
                 <p>An error occurred while loading the iframe.</p>
                 <button class="retry-btn" id="iframe-retry-btn">Retry</button>
             </div>
+            <div class="loading-spinner" id="iframe-loading-spinner"></div>
         </div>
     </div>
     
-    <!-- JW Player Container -->
-    <div id="player-container">
-        <button id="player-close">×</button>
-        <div id="player"></div>
-        <div id="error-message"></div>
+    <!-- Shaka Player Container -->
+    <div id="shaka-player-container" class="player-container">
+        <button class="player-close" id="shaka-player-close">×</button>
+        <div class="shaka-video-container">
+            <video id="shaka-video-player" playsinline></video>
+            <div class="loading-spinner" id="shaka-player-loading"></div>
+            <div class="error-message" id="shaka-error-message">
+                <p>An error occurred while loading the video.</p>
+                <button class="retry-btn" id="shaka-player-retry-btn">Retry</button>
+            </div>
+            
+            <!-- Shaka Player Controls -->
+            <div class="shaka-controls-container" id="shaka-controls-container">
+                <div class="shaka-progress-container" id="shaka-progress-container">
+                    <div class="shaka-buffered-bar" id="shaka-buffered-bar"></div>
+                    <div class="shaka-progress-bar" id="shaka-progress-bar"></div>
+                </div>
+                
+                <div class="shaka-controls-row">
+                    <div class="shaka-left-controls">
+                        <button class="shaka-control-btn" id="shaka-play-pause-btn" title="Play/Pause">
+                            <span id="shaka-play-icon">▶</span>
+                        </button>
+                        
+                        <div class="shaka-volume-container">
+                            <button class="shaka-control-btn" id="shaka-mute-btn" title="Mute/Unmute">
+                                <span id="shaka-volume-icon">🔊</span>
+                            </button>
+                            <input type="range" min="0" max="1" step="0.01" value="1" class="shaka-volume-slider" id="shaka-volume-slider">
+                        </div>
+                        <div class="shaka-time-display">
+                            <span id="shaka-current-time">00:00</span> 
+                        </div>
+                    </div>
+                       
+                    <div class="shaka-right-controls">
+                        <button class="shaka-control-btn shaka-fullscreen-btn" id="shaka-fullscreen-btn" title="Fullscreen">⛶</button>
+                        <button class="shaka-control-btn" id="shaka-fit-screen-btn" title="Fit Screen">⎚</button>
+                        
+                        <div class="shaka-settings-menu">
+                            <button class="shaka-control-btn" id="shaka-settings-btn" title="Settings">⚙️</button>
+                            
+                            <div class="shaka-settings-dropdown" id="shaka-settings-dropdown">
+                                <div class="shaka-speed-option active" data-speed="1.0">Normal (1.0x)</div>
+                                <div class="shaka-speed-option" data-speed="1.25">Fast (1.25x)</div>
+                                <div class="shaka-speed-option" data-speed="1.5">Fast (1.5x)</div>
+                                <div class="shaka-speed-option" data-speed="2.0">Fast (2.0x)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="shaka-channel-info" id="shaka-channel-info">
+                <img src="" alt="" class="shaka-channel-logo" id="shaka-channel-logo"> 
+                <span id="shaka-channel-name"></span>
+            </div>
+        </div>
+        <div class="shaka-source-buttons" id="shaka-source-buttons">
+            <!-- Source buttons will be added dynamically -->
+        </div>
     </div>
     
     <!-- HTML5 Video Player Container -->
-    <div id="html5-player-container">
-        <button id="html5-player-close">×</button>
+    <div id="html5-player-container" class="player-container">
+        <button class="player-close" id="html5-player-close">×</button>
         <div class="video-container">
             <video id="html5-video-player" playsinline></video>
             
@@ -978,33 +1189,22 @@
                     </div>
                 </div>
                    
-<button class="control-btn fullscreen-btn" id="html5-fullscreen-btn" title="Fullscreen">⛶</button>
-<button class="control-btn" id="html5-fit-screen-btn" title="Fit Screen">⎚</button>
-                    
-                </div>
-                </div>            
-
-
-
-
-
-
- 
                 <div class="right-controls">
+                    <button class="control-btn fullscreen-btn" id="html5-fullscreen-btn" title="Fullscreen">⛶</button>
+                    <button class="control-btn" id="html5-fit-screen-btn" title="Fit Screen">⎚</button>
+                    
                     <div class="settings-menu">
                         <button class="control-btn" id="html5-settings-btn" title="Settings">⚙️</button>
                         
                         <div class="settings-dropdown" id="html5-settings-dropdown">
-                      <div class="quality-option active" data-speed="1.0">Normal (1.0x)</div>
-                            <div class="quality-option" data-speed="1.25">Fast (1.25x)</div>
-                            <div class="quality-option" data-speed="1.5">Fast (1.5x)</div>
-                            <div class="quality-option" data-speed="2.0">Fast (2.0x)</div>
+                            <div class="speed-option active" data-speed="1.0">Normal (1.0x)</div>
+                            <div class="speed-option" data-speed="1.25">Fast (1.25x)</div>
+                            <div class="speed-option" data-speed="1.5">Fast (1.5x)</div>
+                            <div class="speed-option" data-speed="2.0">Fast (2.0x)</div>
                         </div>
-                    </div>       
-                        
-                
-                   
-                    
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -1022,56 +1222,149 @@
     <!-- Channel Buttons -->
     <div id="channel-buttons">
         <!-- Entertainment Channels -->
-        	
-        
-         <div class="channel-btn entertainment" 
-             data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeetv/default/manifest.mpd" 
-             data-keyid="ed068cf84f0640ccbc7c0e395c0a272e" 
-             data-key="bb722190f2bb446391020411a7d0828b">
-            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/yHNSuG1V.png" alt="Zee TV">
-            <div class="channel-name">Zee TV</div>
-        </div>       
-        
- <div class="channel-btn entertainment" 
+        <div class="channel-btn entertainment" 
              data-player="html5"
              data-src="https://live.dinesh29.com.np/stream/jiotvplus/starplus/master.m3u8" 
-             data-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Plus.png"data-name="Star Plus">
-            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Plus.png"><div class="channel-name"></div></div>
+             data-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Plus.png"
+             data-name="Star Plus">
+            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Plus.png">
+            <div class="channel-name">Star Plus</div>
+        </div>
         
- <div class="channel-btn entertainment" 
+        <div class="channel-btn entertainment" 
              data-player="html5"
              data-src="https://live.dinesh29.com.np/stream/jiotvplus/starplushd/master.m3u8" 
-             data-logo="https://i.ibb.co/xqgCymNy/Starplushd.png"data-name="Star Plus">
-            <img src="https://i.ibb.co/xqgCymNy/Starplushd.png"><div class="channel-name"></div></div>        
+             data-logo="https://i.ibb.co/xqgCymNy/Starplushd.png"
+             data-name="Star Plus HD">
+            <img src="https://i.ibb.co/xqgCymNy/Starplushd.png">
+            <div class="channel-name">Star Plus HD</div>
+        </div>        
                        
+        <div class="channel-btn entertainment" 
+             data-player="html5"
+             data-src="https://live.dinesh29.com.np/stream/jiotvplus/starutsav/master.m3u8" 
+             data-name="Star Utsav">
+            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Utsav.png">
+            <div class="channel-name">Star Utsav</div>
+        </div>       
+     
+        <div class="channel-btn movies" 
+             data-player="html5"
+             data-src="https://live.dinesh29.com.np/stream/jiotvplus/starutsavmovies/master.m3u8" 
+             data-name="Star Utsav Movies">
+            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Utsav_Movies.png">
+            <div class="channel-name">Star Utsav Movies</div>
+        </div>    
+
+        <div class="channel-btn entertainment" 
+             data-player="html5"
+             data-src="https://live.dinesh29.com.np/stream/jiotvplus/starbharat/master.m3u8" 
+             data-name="Star Bharat">
+            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Bharat.png">
+            <div class="channel-name">Star Bharat</div>
+        </div>        
         
+        <div class="channel-btn entertainment" 
+             data-player="html5"
+             data-src="https://live.dinesh29.com.np/stream/jiotvplus/starbharathd/master.m3u8" 
+             data-name="Star Bharat HD">
+            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Bharat_HD.png">
+            <div class="channel-name">Star Bharat HD</div>
+        </div>     
+
+        <div class="channel-btn movies" 
+             data-player="html5"
+             data-src="https://live.dinesh29.com.np/stream/jiotvplus/stargold/master.m3u8" 
+             data-name="Star Gold">
+            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Gold.png">
+            <div class="channel-name">Star Gold</div>
+        </div>
+
+        <div class="channel-btn movies" 
+             data-player="html5"
+             data-src="https://live.dinesh29.com.np/stream/jiotvplus/stargoldhd/master.m3u8" 
+             data-name="Star Gold HD">
+            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Gold_HD.png">
+            <div class="channel-name">Star Gold HD</div>
+        </div>  
+  
+        <div class="channel-btn movies" 
+             data-player="html5"
+             data-src="https://live.dinesh29.com.np/stream/jiotvplus/stargoldselect/master.m3u8" 
+             data-name="Star Gold Select">
+            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Gold_Select.png">
+            <div class="channel-name">Star Gold Select</div>
+        </div>  
+  
+        <div class="channel-btn movies" 
+             data-player="html5"
+             data-src="https://live.dinesh29.com.np/stream/jiotvplus/stargoldselecthd/master.m3u8" 
+             data-name="Star Gold Select HD">
+            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Gold_Select_HD.png">
+            <div class="channel-name">Star Gold Select HD</div>
+        </div> 
+  
+        <div class="channel-btn movies" 
+             data-player="html5"
+             data-src="https://live.dinesh29.com.np/stream/jiotvplus/stargoldromance/master.m3u8" 
+             data-name="Star Gold Romance">
+            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Gold_Romance.png">
+            <div class="channel-name">Star Gold Romance</div>
+        </div>       
         
+        <div class="channel-btn movies" 
+             data-player="html5"
+             data-src="https://live.dinesh29.com.np/stream/jiotvplus/stargold2/master.m3u8" 
+             data-name="Star Gold 2">
+            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Gold_2.png">
+            <div class="channel-name">Star Gold 2</div>
+        </div>     
         
+        <div class="channel-btn movies" 
+             data-player="html5"
+             data-src="https://live.dinesh29.com.np/stream/jiotvplus/stargold2hd/master.m3u8" 
+             data-name="Star Gold 2 HD">
+            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Gold_2_HD.png">
+            <div class="channel-name">Star Gold 2 HD</div>
+        </div>  
+
+        <div class="channel-btn movies" 
+             data-player="html5"
+             data-src="https://live.dinesh29.com.np/stream/jiotvplus/stargoldthrills/master.m3u8" 
+             data-name="Star Gold Thrills">
+            <img src="https://jiotvimages.cdn.jio.com/dare_images/images/Star_Gold_Thrills.png">
+            <div class="channel-name">Star Gold Thrills</div>
+        </div> 
+
+        <!-- Shaka Player Channels -->
+        <div class="channel-btn entertainment" 
+             data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeetv/default/manifest.mpd"
+             data-keyid="ed068cf84f0640ccbc7c0e395c0a272e"
+             data-key="bb722190f2bb446391020411a7d0828b"
+             data-logo="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/yHNSuG1V.png"
+             data-name="Zee TV">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/yHNSuG1V.png">
+            <div class="channel-name">Zee TV</div>
+        </div>
         
-        
-        
-        
-        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeeanmol/default/manifest.mpd"
+         <div class="channel-btn entertainment" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeeanmol/default/manifest.mpd"
              data-keyid="4023613457774cbeb71a62c339970e63"
              data-key="1c3e9fce5f014542be9cd1f749181204">
             <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/QjKdER9Z.png" alt="Zee Anmool">
             <div class="channel-name">Zee Anmool</div>
         </div>
           
-      <div class="channel-btn movies" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeecinema/default/manifest.mpd"
+      <div class="channel-btn movies" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeecinema/default/manifest.mpd"
              data-keyid="43513b13f4b542e39c9265921dfc1726"
              data-key="b0b2678bcd274c37b888a6c987d502ed">
             <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Zee_Cinema.png" alt="Zee Cinema">
             <div class="channel-name">Zee Cinema</div>
         </div>
       
-<div class="channel-btn movies" 
-             data-player="html5"
-             data-src="https://mini.allinonereborn.online/ze/live.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105540/ZeeCinemaHDELE/index-connected.m3u8&token=JITENDRA_KUMAR&e.m3u8 " 
-             data-logo=" " 
-             data-name="ZeeCinemaHD">
-            <img src="https://i.ibb.co/fzKNtyFg/Zee-cinema-HD.jpg ">
-            <div class="channel-name">ZeeCinemaHD</div></div>  
+
 
 
 
@@ -1082,14 +1375,16 @@
 
   
         
-        <div class="channel-btn movies" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeebollywood/default/manifest.mpd"
+        <div class="channel-btn movies" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeebollywood/default/manifest.mpd"
              data-keyid="e61523260c614746b25b9a5523fe9a39"
              data-key="72ddbf37f76f49acbb8e140e7279e7a1">
             <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/EqDlflgi.png">
             <div class="channel-name">Zee Bollywood</div>
         </div>
         
-        <div class="channel-btn movies" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeeanmolcinema/default/manifest.mpd"
+        <div class="channel-btn movies" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeeanmolcinema/default/manifest.mpd"
              data-keyid="812411cba8bc42c79eb2b19cd78ad3f3"
              data-key="468a0b8d3d5d42d8a5c41bb875390a74">
             <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/diYkUOnX.png">
@@ -1100,30 +1395,42 @@
       
  
         
-<div class="channel-btn movies" 
-             data-player="html5"
-             data-src=" https://mini.allinonereborn.online/ze/live.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105171/ZeeGangaELE/master.m3u8&token=JITENDRA_KUMAR&e.m3u8" 
-             data-logo=" " 
-             data-name="name">
-            <img src=" https://i.ibb.co/Dg5vyqzZ/Zee-Anmol-Cinema-2.png">
-            <div class="channel-name">Zee Anmol Cinema 2</div></div>   
+
+
+
+
+
+
+
  
- <div class="channel-btn entertainment" 
-             data-player="html5"
-             data-src=" https://mini.allinonereborn.online/ze/live.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105170/ZeePunjabiELE/master.m3u8&token=JITENDRA_KUMAR&e.m3u8" 
-             data-logo=" " 
-             data-name="name">
-            <img src="https://i.ibb.co/7JnGjGqw/Zee-Punjaabi.png">
-            <div class="channel-name">ZeePunjabi</div></div>  
+ 
+ 
             
             
-       <div class="channel-btn music" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zing/default/manifest.mpd"
+            
+            
+            
+            
+         
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+       <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zing/default/manifest.mpd"
              data-keyid="f0fb14eebe474a6ab74c8301d55a7224"
              data-key="f9f8b2e30704458b8db844a285ce32be">
             <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/Nyi83z1G.png">
             <div class="channel-name">Zing</div>
         </div>     
-     <div class="channel-btn music" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zoom2/default/manifest.mpd"
+     <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zoom2/default/manifest.mpd"
              data-keyid="86edec9e3b7d4042a4d4a1ca14f847ee"
              data-key="9def4315f0004019a3705bcb3cf30ca3">
             <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/jLvKrs62.png">
@@ -1132,52 +1439,647 @@
             
             
  
-<div class="channel-btn entertainment" 
-             data-player="html5"
-             data-src="https://mini.allinonereborn.online/ze/live.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105176/BigMagicELE/master.m3u8&token=JITENDRA_KUMAR&e.m3u8" 
-             data-logo=" " 
-             data-name="name">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTl0fqyqfzi0MOJWNSibAIhnf_bgXY3XfVn787CsYcWCvRZ24wVwH1kY-0&s=10">
-            <div class="channel-name">Big Magic</div></div>   
+
+   
+   
+   
+   
+   
+   
+   
+   
+   
    
         
-     <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Andtv/default/manifest.mpd"
+     <div class="channel-btn entertainment" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Andtv/default/manifest.mpd"
              data-keyid="26df86eeebb04d7fbc45c948f76e81fd"
              data-key="5f3a23f1a73c4c96ababce5fffe7b06b">
             <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/And_TV.png" alt="And TV">
             <div class="channel-name">And TV</div>
         </div>
-        
- 
- <div class="channel-btn entertainment" 
-             data-player="html5"
-             data-src="https://mini.allinonereborn.online/ze/live.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105504/AndTVHDELE/index-connected.m3u8&token=JITENDRA_KUMAR&e.m3u8" 
-             data-logo=" " 
-             data-name="AND-TV HD">
-            <img src="https://akamaividz2.zee5.com/image/upload/w_396,h_224,c_scale,f_webp,q_auto:eco/resources/0-9-tvhd_0/cover/1920x7702020794400">
-            <div class="channel-name">AND-TV HD</div>
-        </div>  
-        
- <div class="channel-btn movies" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Andpictures/default/manifest.mpd"
+         
+ <div class="channel-btn movies" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Andpictures/default/manifest.mpd"
              data-keyid="8dea532cabfe4f71ba20f62310e7949f"
              data-key="7a214a974e4f4d1d9bb66364d5f0cb92">
             <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/HivVrdof.png">
             <div class="channel-name">And Pictures</div>
         </div>
         
- 
- 
- 
- 
- <div class="channel-btn movies" 
-             data-player="html5"
-             data-src="https://mini.allinonereborn.online/ze/live.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105174/ANDPicturesHDELE/index-connected.m3u8&token=JITENDRA_KUMAR&e.m3u8 " 
-             data-logo=" " 
-             data-name="name">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqUMCewLNnSwActPyvBYbKlrjCMHWn5CrLt8p--A3tz0NXEofC3-XUESs&s=10 ">
-            <div class="channel-name">ANDPicturesHD</div></div>  
-               
+ <div class="channel-btn entertainment" data-player="shaka"
+             data-manifest="https://live.dinesh29.com.np/stream/jiotvplus/colorssd/master.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Colors_SD.png">
+            <div class="channel-name">Colors SD</div>
+        </div>
         
+        <div class="channel-btn entertainment" data-player="shaka"
+             data-manifest="https://live.dinesh29.com.np/stream/jiotvplus/colorshd/master.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Colors_HD.png" alt="Colors HD">
+            <div class="channel-name">Colors HD</div>
+        </div>
+        
+        <div class="channel-btn entertainment" data-player="shaka"
+             data-manifest="https://live.dinesh29.com.np/stream/jiotvplus/rishtey/master.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Rishtey.png" alt="Rishtey">
+            <div class="channel-name">Rishtey</div>
+        </div>
+               
+        <div class="channel-btn movies" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/ts_live_482.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Colors_Cineplex.png">
+            <div class="channel-name">Colors Cineplex</div>
+        </div>
+        
+        <div class="channel-btn movies" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/ts_live_1477.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Color_Cineplex_HD.png">
+            <div class="channel-name">Colors Cineplex HD</div>
+        </div>
+        
+        <div class="channel-btn movies" data-player="shaka"
+             data-manifest="https://live.dinesh29.com.np/stream/jiotvplus/colorscineplexbollywood/master.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Colors_Cineplex_Bollywood.png">
+            <div class="channel-name">Cineplex Bollywood</div>
+        </div>
+        
+        <div class="channel-btn movies" data-player="shaka"
+             data-manifest="https://live.dinesh29.com.np/stream/jiotvplus/colorscineplexsuperhit/master.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Rishtey_Cineplex.png">
+            <div class="channel-name">Cineplex Superhit</div>
+        </div>
+ 
+ 
+ 
+ 
+               
+   
+
+
+            
+            
+
+
+        
+        <div class="channel-btn movies" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=1366&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Wow_Cinema_One.png">
+            <div class="channel-name">Wow Cinema</div>
+        </div>
+        
+        
+        
+        
+        <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2065&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Saregama_Music.png">
+            <div class="channel-name">Saregama Music</div>
+        </div>
+        
+        <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2325&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Punjabi_Melodies.png">
+            <div class="channel-name">Punjabi Melodies</div>
+        </div>
+        
+        <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2750&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Saga_Music.png">
+            <div class="channel-name">Saga Music</div>
+        </div>
+        
+        <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2753&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/YRF_Music.png">
+            <div class="channel-name">YRF Music</div>
+        </div>
+        
+        <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2778&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Tabbar_Hits.png">
+            <div class="channel-name">Tabbar Hits</div>
+        </div>
+        
+        <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2934&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Punjabi_Hits.png">
+            <div class="channel-name">Punjabi Hits</div>
+        </div>
+        
+        
+        
+        
+        
+        
+        <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=248&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/MTV.png">
+            <div class="channel-name">MTV</div>
+        </div>
+        
+        <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=250&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Music_India.png">
+            <div class="channel-name">Music India</div>
+        </div>
+        
+        <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=440&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/9X_Jalwa.png">
+            <div class="channel-name">9X Jalwa</div>
+        </div>
+        
+        <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=587&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/9XM.png">
+            <div class="channel-name">9XM</div>
+        </div>
+        
+        <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://sablive-ddpb.akamaized.net/mastii/playlist.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Mastiii.png">
+            <div class="channel-name">Mastiii</div>
+        </div>
+        
+        <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2252&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Desi_Music_Station.png">
+            <div class="channel-name">Desi Music Station</div>
+        </div>
+        
+        <div class="channel-btn music" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=1145&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/MTV_HD_Plus.png">
+            <div class="channel-name">MTV HD+</div>
+        </div>
+        
+        <!-- Kids Channels -->
+        <div class="channel-btn kids" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoverykids2/default/manifest.mpd"
+             data-keyid="601f58d4b7094d2baf78c85d1d9cb6c9"
+             data-key="609e0cc03198455fa36fd2cc3e7f940d">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/RzedYhFG.png">
+            <div class="channel-name">Discovery Kids</div>
+        </div>
+        
+        <div class="channel-btn kids" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=545&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Nick_Hindi.png">
+            <div class="channel-name">Nick Hindi</div>
+        </div>
+        
+        <div class="channel-btn kids" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=548&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Nickelodeon_Jr.png">
+            <div class="channel-name">Nickelodeon Jr</div>
+        </div>
+        
+        
+
+        
+        
+        
+        
+        
+        <div class="channel-btn kids" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=554&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Discovery_Kids_2.png">
+            <div class="channel-name">Discovery Kids 2</div>
+        </div>
+        
+        <div class="channel-btn kids" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=815&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/sonic_Hindi.png">
+            <div class="channel-name">Sonic Hindi</div>
+        </div>
+        
+        <div class="channel-btn kids" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2774&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Power_Kids_TV.png">
+            <div class="channel-name">Power Kids TV</div>
+        </div>
+        
+        <!-- Other Channels -->
+        <div class="channel-btn entertainment" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoverychannel2/default/manifest.mpd"
+             data-keyid="b70a8cf9450c4d6484b4ac4d3c6761c0"
+             data-key="0908be844260409cbac180bf0181da40">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/UyI5ljKM.png">
+            <div class="channel-name">Discovery</div>
+        </div>
+        
+        <div class="channel-btn entertainment" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoveryscience2/default/manifest.mpd"
+             data-keyid="5458f45efedb4d6f8aa6ac76c85b621b"
+             data-key="dbf8a0a306a64525ba3012fd225370c0">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/vIA7TExn.png">
+            <div class="channel-name">Discovery Science</div>
+        </div>
+        
+        <div class="channel-btn entertainment" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Investigationdiscovery2/default/manifest.mpd"
+             data-keyid="2828ea6f6a984505b0454da0c03f68b9"
+             data-key="5d3b7195086544c2807aa8c1544e7379">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/mHhlDCiL.png">
+            <div class="channel-name">Discovery Investigation</div>
+        </div>
+        
+        <div class="channel-btn entertainment" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoveryturbo2/default/manifest.mpd"
+             data-keyid="c011525969e44b99a86059dbb3cdf4e8"
+             data-key="6700a5d93203417b8585f7de7dd1a09b">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/6eCv1iuk.png">
+            <div class="channel-name">Discovery Turbo</div>
+        </div>
+        
+        <div class="channel-btn entertainment" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Tlc2/default/manifest.mpd"
+             data-keyid="e48e7373d6be47ecab83a20849f6823e"
+             data-key="513ce07a2ee24ffdbe667eff5a9d46a8">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/FOvFsIgt.png">
+            <div class="channel-name">TLC</div>
+        </div>
+        
+        
+        
+        <div class="channel-btn entertainment" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Koreandramas2/default/manifest.mpd"
+             data-keyid="ed197e7253c04946903f03bad9afac91"
+             data-key="99ebb8683ea74b70a9fda1cbdc2cc1b4">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/BNu8WvFw.png">
+            <div class="channel-name">Korean Drama Active</div>
+        </div>
+        
+        <div class="channel-btn entertainment" data-player="shaka"
+             data-manifest="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Shortstv2/default/manifest.mpd"
+             data-keyid="b994480f788d41ddbc805862ac469416"
+             data-key="78a6a0fc1758483595da7113e58e4467">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/lcMc75Xr.png">
+            <div class="channel-name">Shorts TV Active</div>
+        </div>
+        
+        <div class="channel-btn sports" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/ts_live_1985.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sports18_Khel.png">
+            <div class="channel-name">Star Sports</div>
+        </div>
+        
+        <div class="channel-btn sports" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/ts_live_1984.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sports18_1_SD.png">
+            <div class="channel-name">Star Sports 2</div>
+        </div>
+        
+        
+        
+     <div class="channel-btn sports" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/ts_live_1984.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sports18_1_SD.png">
+            <div class="channel-name">Star Sports 2</div>
+        </div>   
+        
+        
+        
+        <div class="channel-btn entertainment" data-player="shaka"
+             data-manifest="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=3071&e=.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/TV_Asia.png">
+            <div class="channel-name">TV Asia</div>
+        </div>
+        
+        <div class="channel-btn music" data-player="html5"
+             data-src="https://live-e24.dailyhunt.in/eternowsa/live/amlst:E24_,b256,b512,b1024,b1824,.smil/playlist.m3u8">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/E_24.png">
+            <div class="channel-name">E 24</div>
+        </div>
+        
+        
+    
+    <div class="channel-btn news" data-player="html5"
+             data-src="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeehindustan/default/manifest.mpd"
+             data-keyid="10616d7c4bee41f1825bd805c6295172"
+             data-key="dc85f2112f63477fb39fc149493c49be">
+            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/TknReKLD.png" alt="Zee Hindustan">
+            <div class="channel-name">Zee Hindustan</div></div>
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        
+    <div class="channel-btn entertainment" data-player="html5"
+             data-src="https://live-dangal.akamaized.net/liveabr/playlist.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Dangal.png " alt="dangalTV">
+            <div class="channel-name">DangalTV</div></div>
+            
+            
+            
+         <div class="channel-btn movies" 
+             data-player="shaka"
+             data-manifest="https://live2.shoq.com.pk/live/eds/B4U_Movies/DASH/B4U_Movies.mpd" 
+             data-keyid="bb0c6b6f0e2c873a174e63e16f3a3f62" 
+             data-key="a8c4fae3ea8023b51707e470ec336209">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYixZD7IsMHMmFyu-UH_Ucdpy33TsxzUvq8SIIhrTZqmhvru4XQyWsPfw&s=10" alt="B4U MOVIES">
+            <div class="channel-name"></div>
+        </div>       
+            
+            
+    
+    <div class="channel-btn movies" data-player="html5"
+             data-src="https://cdn-2.pishow.tv/live/419/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/B4U_Movies.png " alt="B4U_Movies">
+            <div class="channel-name">B4U_Movies</div></div>
+    
+    <div class="channel-btn music" data-player="html5"
+             data-src="https://cdn-2.pishow.tv/live/415/master.m3u8 "
+             data-keyid=" "
+             data-key=" ">
+            <img src=" https://jiotv.catchup.cdn.jio.com/dare_images/images/B4U_Music.png" alt="B4U_Music">
+            <div class="channel-name">B4U_Music</div></div>
+    
+    <div class="channel-btn movies" data-player="html5"
+             data-src="https://cdn-2.pishow.tv/live/227/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src=" https://jiotv.catchup.cdn.jio.com/dare_images/images/B4U_Kadak.png" alt="B4U_Kadak">
+            <div class="channel-name">B4U_Kadak</div></div>
+    
+    
+    <div class="channel-btn entertainment" data-player="html5"
+             data-src="https://vg-pitaaratvlive.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-583798/playlist.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Pitaara.png " alt="Pitaara">
+            <div class="channel-name">Pitaara</div></div>
+        
+    <div class="channel-btn music" data-player="html5"
+             data-src="https://epiconvh.akamaized.net/live/showbox/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://i.ibb.co/fYp2mkMm/Picsart-25-04-18-11-24-53-151.png" alt="showbox">
+            <div class="channel-name">showbox</div></div>
+    
+    <div class="channel-btn entertainment" data-player="html5"
+             data-src="https://vg-theqlive.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-306905/main.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/TheQIndia.png " alt="theqlive">
+            <div class="channel-name">TheQIndia</div></div>
+    
+    <div class="channel-btn entertainment" data-player="html5"
+             data-src="https://cdn-1.pishow.tv/live/1291/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Dhamaal_TV.png" alt="Dhamaal_TV">
+            <div class="channel-name">Dhamaal_TV</div></div>
+    
+    <div class="channel-btn movies" data-player="html5"
+             data-src="https://ssailive.vgcdn.net/sg/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/b6e0af97-b4c7-443e-a152-a8caa844c256/main.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://d229kpbsb5jevy.cloudfront.net/tv/480/270/languages/bbo.jpg" alt="BBO">
+            <div class="channel-name">BBO</div></div>
+    
+    
+    <div class="channel-btn music" data-player="html5"
+             data-src="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/shemaroo-filmigaane/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Shemaroo_TV.png " alt="shemaroo-filmigaane">
+            <div class="channel-name">shemaroo-filmigaane</div></div>
+        
+    <div class="channel-btn movies" data-player="html5"
+             data-src="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/shemaroo-bollywood/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Shemaroo_Umang.png" alt="shemaroo-bollywood">
+            <div class="channel-name">shemaroo-bollywood</div></div>
+    
+    <div class="channel-btn entertainment" data-player="html5"
+             data-src="https://cdn-1.pishow.tv/live/1013/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Manoranjan_TV.png" alt="Manoranjan_TV">
+            <div class="channel-name">Manoranjan_TV</div></div>
+    
+    <div class="channel-btn movies" data-player="html5"
+             data-src="https://cdn-1.pishow.tv/live/1011/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Manoranjan_Grand.png " alt="Manoranjan_Grand">
+            <div class="channel-name">Manoranjan_Grand</div></div>
+    
+    <div class="channel-btn movies" data-player="html5"
+             data-src="https://cdn-6.pishow.tv/live/10007/master.m3u8 "
+             data-keyid=" "
+             data-key=" ">
+            <img src=" https://jiotv.catchup.cdn.jio.com/dare_images/images/Maha_Movies.png" alt="Maha_Movies">
+            <div class="channel-name">Maha_Movies</div></div>
+    
+    <div class="channel-btn entertainment" data-player="html5"
+             data-src="https://d2lk5u59tns74c.cloudfront.net/out/v1/67cec794d8b14f9ba21f73924ac65797/index.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJ5AwZokVNzOHGn-5_OJYBhCUv6lQyCaP8ilXwAJS6i5NJYQ9j29f3V3Bn&s=10  " alt="DD Bharati">
+            <div class="channel-name">DD Bharati</div></div>
+        
+    <div class="channel-btn entertainment" data-player="html5"
+             data-src="https://d3qs3d2rkhfqrt.cloudfront.net/out/v1/40492a64c1db4a1385ba1a397d357d3a/index.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://i.ibb.co/HTQQkGzS/Picsart-25-04-18-11-25-41-161.png" alt="DD National">
+            <div class="channel-name">DD National</div></div>
+    
+    <div class="channel-btn entertainment" data-player="html5"
+             data-src="https://d3eyhgoylams0m.cloudfront.net/v1/manifest/93ce20f0f52760bf38be911ff4c91ed02aa2fd92/ed7bd2c7-8d10-4051-b397-2f6b90f99acb/20c8ad14-a158-4a42-8889-e032d070856e/2.m3u8 "
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQp1OYfmugsbWOrMUv99qajPVbKpnWKLApWiDvYK1REHb7j96-zhZ2lpfc&s=10 " alt="DD Punjaabi">
+            <div class="channel-name">Punjaabi</div></div>
+    
+    <div class="channel-btn sports" data-player="html5"
+             data-src="https://mini.allinonereborn.online/jiotv-ww/app/ts_live_204.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/DD_Sports.png" alt="DD_Sports">
+            <div class="channel-name">DD_Sports</div></div>
+    
+    <div class="channel-btn news" data-player="html5"
+             data-src="https://ddlive.b-cdn.net/19/master.m3u8"
+             data-keyid=" "
+             data-key=" ">
+            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/DD_News.png " alt="DD_News">
+            <div class="channel-name">DD_News</div></div>
+    
+    
+    
+    
+ <div class="channel-btn music" data-player="html5"
+             data-src="https://mcncdndigital.com/balleballetv/index.m3u8 ">
+            <img src="http://balleballe.tv/wp-content/uploads/2019/07/logo-e1568618159543.png ">
+            <div class="channel-name">balleballetv</div></div>   
+    
+ <div class="channel-btn entertainment" data-player="html5"
+             data-src="https://epiconvh.akamaized.net/live/nazara/master.m3u8 ">
+            <img src="https://i.ibb.co/pvCX0fw5/Picsart-25-04-18-11-50-11-661.jpg ">
+            <div class="channel-name">nazara</div></div>      
+    
+   <div class="channel-btn movies" data-player="html5"
+             data-src="https://epiconvh.akamaized.net/live/filamchi/master_864.m3u8">
+            <img src="https://www.adgully.com/img/800/202105/filamachienglish-black.jpg ">
+            <div class="channel-name">filamchi</div></div>    
+    
+   <div class="channel-btn movies" data-player="html5"
+             data-src="https://cdn-2.pishow.tv/live/1459/master.m3u8">
+    <img src="https://i.pinimg.com/736x/1c/9a/08/1c9a085c1fe6a240cfa29004c0a36b05.jpg" alt="Goldmines">
+    <div class="channel-name">Goldmines</div>
+</div>
+
+<div class="channel-btn movies" data-player="html5"
+             data-src="https://cdn-2.pishow.tv/live/1460/master.m3u8">
+    <img src="https://i.pinimg.com/736x/a3/e6/61/a3e661d1dfac520cfed7e1dd44bb8581.jpg" alt="Goldmines Bollywood">
+    <div class="channel-name">Goldmines Bollywood</div>
+</div>
+
+<div class="channel-btn movies" data-player="html5"
+             data-src="https://cdn-2.pishow.tv/live/1461/master.m3u8">
+    <img src="https://i.pinimg.com/736x/09/62/d9/0962d9a7c965d5ecb70f1a6f5c8f93dd.jpg" alt="Goldmines Movies">
+    <div class="channel-name">Goldmines Movies</div>
+</div>
+
+<div class="channel-btn entertainment" data-player="html5"
+             data-src="https://anjantvevent.pc.cdn.bitgravity.com/anjantv/live/amlst:event_anjan_,b400,b800,b1024,b1200,b1500,b4000,.smil/chunklist_b4000000.m3u8">
+    <img src="https://i.pinimg.com/736x/76/bd/a0/76bda01f96b00c711bc9023f38aa1c0a.jpg" alt="anjan tv">
+    <div class="channel-name">Anjan TV</div>
+</div>
+
+<div class="channel-btn entertainment" data-player="html5"
+             data-src="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/arre/master.m3u8">
+    <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Arre.png" alt="Arre tv">
+    <div class="channel-name">Arre TV</div>
+</div>
+
+<div class="channel-btn movies" data-player="html5"
+             data-src="https://livecdn.live247stream.com/joomusic/tv/playlist.m3u8">
+    <img src="https://www.joomusic.net/assets/images/logo.png" alt="Joo music">
+    <div class="channel-name">Joo Music</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<div class="channel-btn music" data-player="html5"
+             data-src="https://cdn2.in/SteelbirdMusicTVhls/live.m3u8">
+    <img src="https://i.ibb.co/27vcPGBY/Picsart-25-04-18-11-30-28-867.png" alt="Steelbird Music">
+    <div class="channel-name">Steelbird Music</div>
+</div>
+
+
+
+<div class="channel-btn news" data-player="html5"
+             data-src="https://dknttpxmr0dwf.cloudfront.net/index_3.m3u8">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-rB4AxUKsXi4KQdvGYMO_5fdLhOYwWuJpr6rvjefSeQwF-VRGNIUCtYg&s=10" alt="Steelbird Music">
+    <div class="channel-name">Zee News</div>
+</div>
+
+
+
+
+
+<div class="channel-btn news" data-player="html5"
+             data-src="https://d2o3r1shda7xvv.cloudfront.net/index_5.m3u8">
+    <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Zee_Salaam.png" alt="Zee Salaam">
+    <div class="channel-name">Zee Salaam</div>
+</div>
+
+<div class="channel-btn news" data-player="html5"
+             data-src="https://d31s6sxcz6vnac.cloudfront.net/index_3.m3u8">
+    <img src="https://i.pinimg.com/736x/b7/10/24/b7102420be9a0f9702d310bfc95e80bf.jpg" alt="zee punjab haryana">
+    <div class="channel-name">Zee Punjab Haryana</div>
+</div>
+
+<div class="channel-btn news" data-player="html5"
+             data-src="https://abplivetv.pc.cdn.bitgravity.com/httppush/abp_livetv/abp_abpnews/master.m3u8">
+    <img src="https://i.pinimg.com/736x/62/be/31/62be317f79ba2aacaad9499ae57c4e22.jpg" alt="Abp news">
+    <div class="channel-name">ABP News</div>
+</div>
+
+<div class="channel-btn news" data-player="html5"
+             data-src="https://aajtaklive-amd.akamaized.net/hls/live/2014416/aajtak/aajtaklive/live_720p/chunks.m3u8">
+    <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Aaj_Tak.png" alt="Aajtakk">
+    <div class="channel-name">Aaj Tak</div>
+</div>
+
+<div class="channel-btn news" data-player="html5"
+             data-src="https://feeds.intoday.in/aajtak/api/at2/master.m3u8">
+    <img src="https://akm-img-a-in.tosshub.com/aajtak/resources/at2logo_97x552x.png" alt="aajtakk 2">
+    <div class="channel-name">Aaj Tak 2</div>
+</div>
+  
+
+
+
+<div class="channel-btn entertainment" 
+             data-player="iframe"
+             data-iframe="https://mini.allinonereborn.online/ze/play.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105531/ZeeTVHDMSLELE/index-connected.m3u8"data-name="ZEE-TV HD">
+            <img src="https://akamaividz2.zee5.com/image/upload/w_1170,h_658,c_scale/resources/0-9-zeetvhd/list/rsz1170x658withlog1554775145.jpg">
+            <div class="channel-name">ZEE-TV HD</div></div>  
+            
+  <div class="channel-btn movies" 
+             data-player="iframe"
+             data-iframe="https://mini.allinonereborn.online/ze/play.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105531/ZeeTVHDMSLELE/index-connected.m3u8"data-name="ZeeCinemaHD">
+            <img src="https://i.ibb.co/fzKNtyFg/Zee-cinema-HD.jpg">
+            <div class="channel-name">ZeeCinemaHD</div></div> 
+   <div class="channel-btn movies" 
+             data-player="iframe"
+             data-iframe="https://mini.allinonereborn.online/ze/play.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105171/ZeeGangaELE/master.m3u8"data-name="Zee Anmol Cinema 2">
+            <img src="https://i.ibb.co/Dg5vyqzZ/Zee-Anmol-Cinema-2.png">
+            <div class="channel-name">Zee Anmol Cinema 2</div></div> 
+  <div class="channel-btn entertainment" 
+             data-player="iframe"
+             data-iframe="https://mini.allinonereborn.online/ze/play.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105170/ZeePunjabiELE/master.m3u8"data-name="ZeePunjabi">
+            <img src="https://i.ibb.co/7JnGjGqw/Zee-Punjaabi.png">
+            <div class="channel-name">ZeePunjabi</div></div>   
+  <div class="channel-btn entertainment" 
+             data-player="iframe"
+             data-iframe="https://mini.allinonereborn.online/ze/play.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105176/BigMagicELE/master.m3u8"data-name="big magic">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTl0fqyqfzi0MOJWNSibAIhnf_bgXY3XfVn787CsYcWCvRZ24wVwH1kY-0&s=10">
+            <div class="channel-name">BIG MAGIC</div></div>
+  <div class="channel-btn movies" 
+             data-player="iframe"
+             data-iframe="https://mini.allinonereborn.online/ze/play.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105504/AndTVHDELE/index-connected.m3u8"data-name="AND-TV HD">
+            <img src="https://akamaividz2.zee5.com/image/upload/w_396,h_224,c_scale,f_webp,q_auto:eco/resources/0-9-tvhd_0/cover/1920x7702020794400">
+            <div class="channel-name">AND-TV HD</div></div>  
+            
+  <div class="channel-btn movies" 
+             data-player="iframe"
+             data-iframe="https://mini.allinonereborn.online/ze/play.php?id=https://z5ak-cmaflive.zee5.com/cmaf/live/2105174/ANDPicturesHDELE/index-connected.m3u8"data-name="ANDPicturesHD">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqUMCewLNnSwActPyvBYbKlrjCMHWn5CrLt8p--A3tz0NXEofC3-XUESs&s=10 ">
+            <div class="channel-name">ANDPicturesHD</div></div>                
+                              
+                             
+            
+
+
+
+     
         
        
 <!-- IFrame Channels -->
@@ -1267,542 +2169,6 @@
         
         
  
-            
-            
-
-<div class="channel-btn entertainment" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=1368&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Colors_SD.png">
-            <div class="channel-name">Colors SD</div>
-        </div>
-        
-        <div class="channel-btn entertainment" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=144&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Colors_HD.png" alt="Colors HD">
-            <div class="channel-name">Colors HD</div>
-        </div>
-        
-        <div class="channel-btn entertainment" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=279&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Rishtey.png" alt="Rishtey">
-            <div class="channel-name">Rishtey</div>
-        </div>
-        
-        
-        
-
-
-
-
-
-
-
-
-
-
-
-
-        
-      
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-      
-        
-        
-        
-        
-        
-        
-        
-        
-       
-
-        
-
-
- 
-        
-  
-        
-          
-        
-        
-        
-        
-        
-        <div class="channel-btn movies" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=482&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Colors_Cineplex.png">
-            <div class="channel-name">Colors Cineplex</div>
-        </div>
-        
-        <div class="channel-btn movies" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=1477&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Color_Cineplex_HD.png">
-            <div class="channel-name">Colors Cineplex HD</div>
-        </div>
-        
-        <div class="channel-btn movies" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=1763&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Colors_Cineplex_Bollywood.png">
-            <div class="channel-name">Cineplex Bollywood</div>
-        </div>
-        
-        <div class="channel-btn movies" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=1450&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Rishtey_Cineplex.png">
-            <div class="channel-name">Cineplex Superhit</div>
-        </div>
-        
-        <div class="channel-btn movies" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=1366&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Wow_Cinema_One.png">
-            <div class="channel-name">Wow Cinema</div>
-        </div>
-        
-        
-        
-        
-        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2065&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Saregama_Music.png">
-            <div class="channel-name">Saregama Music</div>
-        </div>
-        
-        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2325&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Punjabi_Melodies.png">
-            <div class="channel-name">Punjabi Melodies</div>
-        </div>
-        
-        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2750&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Saga_Music.png">
-            <div class="channel-name">Saga Music</div>
-        </div>
-        
-        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2753&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/YRF_Music.png">
-            <div class="channel-name">YRF Music</div>
-        </div>
-        
-        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2778&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Tabbar_Hits.png">
-            <div class="channel-name">Tabbar Hits</div>
-        </div>
-        
-        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2934&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Punjabi_Hits.png">
-            <div class="channel-name">Punjabi Hits</div>
-        </div>
-        
-        
-        
-        
-        
-        
-        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=248&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/MTV.png">
-            <div class="channel-name">MTV</div>
-        </div>
-        
-        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=250&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Music_India.png">
-            <div class="channel-name">Music India</div>
-        </div>
-        
-        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=440&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/9X_Jalwa.png">
-            <div class="channel-name">9X Jalwa</div>
-        </div>
-        
-        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=587&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/9XM.png">
-            <div class="channel-name">9XM</div>
-        </div>
-        
-        <div class="channel-btn music" data-stream="https://sablive-ddpb.akamaized.net/mastii/playlist.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Mastiii.png">
-            <div class="channel-name">Mastiii</div>
-        </div>
-        
-        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2252&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Desi_Music_Station.png">
-            <div class="channel-name">Desi Music Station</div>
-        </div>
-        
-        <div class="channel-btn music" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=1145&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/MTV_HD_Plus.png">
-            <div class="channel-name">MTV HD+</div>
-        </div>
-        
-        <!-- Kids Channels -->
-        <div class="channel-btn kids" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoverykids2/default/manifest.mpd"
-             data-keyid="601f58d4b7094d2baf78c85d1d9cb6c9"
-             data-key="609e0cc03198455fa36fd2cc3e7f940d">
-            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/RzedYhFG.png">
-            <div class="channel-name">Discovery Kids</div>
-        </div>
-        
-        <div class="channel-btn kids" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=545&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Nick_Hindi.png">
-            <div class="channel-name">Nick Hindi</div>
-        </div>
-        
-        <div class="channel-btn kids" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=548&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Nickelodeon_Jr.png">
-            <div class="channel-name">Nickelodeon Jr</div>
-        </div>
-        
-        
-
-        
-        
-        
-        
-        
-        <div class="channel-btn kids" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=554&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Discovery_Kids_2.png">
-            <div class="channel-name">Discovery Kids 2</div>
-        </div>
-        
-        <div class="channel-btn kids" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=815&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/sonic_Hindi.png">
-            <div class="channel-name">Sonic Hindi</div>
-        </div>
-        
-        <div class="channel-btn kids" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=2774&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Power_Kids_TV.png">
-            <div class="channel-name">Power Kids TV</div>
-        </div>
-        
-        <!-- Other Channels -->
-        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoverychannel2/default/manifest.mpd"
-             data-keyid="b70a8cf9450c4d6484b4ac4d3c6761c0"
-             data-key="0908be844260409cbac180bf0181da40">
-            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/UyI5ljKM.png">
-            <div class="channel-name">Discovery</div>
-        </div>
-        
-        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoveryscience2/default/manifest.mpd"
-             data-keyid="5458f45efedb4d6f8aa6ac76c85b621b"
-             data-key="dbf8a0a306a64525ba3012fd225370c0">
-            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/vIA7TExn.png">
-            <div class="channel-name">Discovery Science</div>
-        </div>
-        
-        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Investigationdiscovery2/default/manifest.mpd"
-             data-keyid="2828ea6f6a984505b0454da0c03f68b9"
-             data-key="5d3b7195086544c2807aa8c1544e7379">
-            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/mHhlDCiL.png">
-            <div class="channel-name">Discovery Investigation</div>
-        </div>
-        
-        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoveryturbo2/default/manifest.mpd"
-             data-keyid="c011525969e44b99a86059dbb3cdf4e8"
-             data-key="6700a5d93203417b8585f7de7dd1a09b">
-            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/6eCv1iuk.png">
-            <div class="channel-name">Discovery Turbo</div>
-        </div>
-        
-        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Tlc2/default/manifest.mpd"
-             data-keyid="e48e7373d6be47ecab83a20849f6823e"
-             data-key="513ce07a2ee24ffdbe667eff5a9d46a8">
-            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/FOvFsIgt.png">
-            <div class="channel-name">TLC</div>
-        </div>
-        
-        
-        
-        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Koreandramas2/default/manifest.mpd"
-             data-keyid="ed197e7253c04946903f03bad9afac91"
-             data-key="99ebb8683ea74b70a9fda1cbdc2cc1b4">
-            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/BNu8WvFw.png">
-            <div class="channel-name">Korean Drama Active</div>
-        </div>
-        
-        <div class="channel-btn entertainment" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Shortstv2/default/manifest.mpd"
-             data-keyid="b994480f788d41ddbc805862ac469416"
-             data-key="78a6a0fc1758483595da7113e58e4467">
-            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/lcMc75Xr.png">
-            <div class="channel-name">Shorts TV Active</div>
-        </div>
-        
-        <div class="channel-btn sports" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/ts_live_1985.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sports18_Khel.png">
-            <div class="channel-name">Star Sports</div>
-        </div>
-        
-        <div class="channel-btn sports" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/ts_live_1984.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sports18_1_SD.png">
-            <div class="channel-name">Star Sports 2</div>
-        </div>
-        
-        
-        
-     <div class="channel-btn sports" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/ts_live_1984.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Sports18_1_SD.png">
-            <div class="channel-name">Star Sports 2</div>
-        </div>   
-        
-        
-        
-        <div class="channel-btn entertainment" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/live.php?id=3071&e=.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/TV_Asia.png">
-            <div class="channel-name">TV Asia</div>
-        </div>
-        
-        <div class="channel-btn music" data-stream="https://live-e24.dailyhunt.in/eternowsa/live/amlst:E24_,b256,b512,b1024,b1824,.smil/playlist.m3u8">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/E_24.png">
-            <div class="channel-name">E 24</div>
-        </div>
-        
-        
-    
-    <div class="channel-btn news" data-stream="https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeehindustan/default/manifest.mpd"
-             data-keyid="10616d7c4bee41f1825bd805c6295172"
-             data-key="dc85f2112f63477fb39fc149493c49be">
-            <img src="https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/TknReKLD.png" alt="Zee Hindustan">
-            <div class="channel-name">Zee Hindustan</div></div>
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-        
-    <div class="channel-btn entertainment" data-stream="https://live-dangal.akamaized.net/liveabr/playlist.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Dangal.png " alt="dangalTV">
-            <div class="channel-name">DangalTV</div></div>
-            
-            
-            
-         <div class="channel-btn movies" 
-             data-stream="https://live2.shoq.com.pk/live/eds/B4U_Movies/DASH/B4U_Movies.mpd" 
-             data-keyid="bb0c6b6f0e2c873a174e63e16f3a3f62" 
-             data-key="a8c4fae3ea8023b51707e470ec336209">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYixZD7IsMHMmFyu-UH_Ucdpy33TsxzUvq8SIIhrTZqmhvru4XQyWsPfw&s=10" alt="B4U MOVIES">
-            <div class="channel-name"></div>
-        </div>       
-            
-            
-    
-    <div class="channel-btn movies" data-stream="https://cdn-2.pishow.tv/live/419/master.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/B4U_Movies.png " alt="B4U_Movies">
-            <div class="channel-name">B4U_Movies</div></div>
-    
-    <div class="channel-btn music" data-stream="https://cdn-2.pishow.tv/live/415/master.m3u8 "
-             data-keyid=" "
-             data-key=" ">
-            <img src=" https://jiotv.catchup.cdn.jio.com/dare_images/images/B4U_Music.png" alt="B4U_Music">
-            <div class="channel-name">B4U_Music</div></div>
-    
-    <div class="channel-btn movies" data-stream="https://cdn-2.pishow.tv/live/227/master.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src=" https://jiotv.catchup.cdn.jio.com/dare_images/images/B4U_Kadak.png" alt="B4U_Kadak">
-            <div class="channel-name">B4U_Kadak</div></div>
-    
-    
-    <div class="channel-btn entertainment" data-stream="https://vg-pitaaratvlive.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-583798/playlist.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Pitaara.png " alt="Pitaara">
-            <div class="channel-name">Pitaara</div></div>
-        
-    <div class="channel-btn music" data-stream="https://epiconvh.akamaized.net/live/showbox/master.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://i.ibb.co/fYp2mkMm/Picsart-25-04-18-11-24-53-151.png" alt="showbox">
-            <div class="channel-name">showbox</div></div>
-    
-    <div class="channel-btn entertainment" data-stream="https://vg-theqlive.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-306905/main.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/TheQIndia.png " alt="theqlive">
-            <div class="channel-name">TheQIndia</div></div>
-    
-    <div class="channel-btn entertainment" data-stream="https://cdn-1.pishow.tv/live/1291/master.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Dhamaal_TV.png" alt="Dhamaal_TV">
-            <div class="channel-name">Dhamaal_TV</div></div>
-    
-    <div class="channel-btn movies" data-stream="https://ssailive.vgcdn.net/sg/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/b6e0af97-b4c7-443e-a152-a8caa844c256/main.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://d229kpbsb5jevy.cloudfront.net/tv/480/270/languages/bbo.jpg" alt="BBO">
-            <div class="channel-name">BBO</div></div>
-    
-    
-    <div class="channel-btn music" data-stream="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/shemaroo-filmigaane/master.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Shemaroo_TV.png " alt="shemaroo-filmigaane">
-            <div class="channel-name">shemaroo-filmigaane</div></div>
-        
-    <div class="channel-btn movies" data-stream="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/shemaroo-bollywood/master.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Shemaroo_Umang.png" alt="shemaroo-bollywood">
-            <div class="channel-name">shemaroo-bollywood</div></div>
-    
-    <div class="channel-btn entertainment" data-stream="https://cdn-1.pishow.tv/live/1013/master.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Manoranjan_TV.png" alt="Manoranjan_TV">
-            <div class="channel-name">Manoranjan_TV</div></div>
-    
-    <div class="channel-btn movies" data-stream="https://cdn-1.pishow.tv/live/1011/master.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Manoranjan_Grand.png " alt="Manoranjan_Grand">
-            <div class="channel-name">Manoranjan_Grand</div></div>
-    
-    <div class="channel-btn movies" data-stream="https://cdn-6.pishow.tv/live/10007/master.m3u8 "
-             data-keyid=" "
-             data-key=" ">
-            <img src=" https://jiotv.catchup.cdn.jio.com/dare_images/images/Maha_Movies.png" alt="Maha_Movies">
-            <div class="channel-name">Maha_Movies</div></div>
-    
-    <div class="channel-btn entertainment" data-stream="https://d2lk5u59tns74c.cloudfront.net/out/v1/67cec794d8b14f9ba21f73924ac65797/index.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJ5AwZokVNzOHGn-5_OJYBhCUv6lQyCaP8ilXwAJS6i5NJYQ9j29f3V3Bn&s=10  " alt="DD Bharati">
-            <div class="channel-name">DD Bharati</div></div>
-        
-    <div class="channel-btn entertainment" data-stream="https://d3qs3d2rkhfqrt.cloudfront.net/out/v1/40492a64c1db4a1385ba1a397d357d3a/index.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://i.ibb.co/HTQQkGzS/Picsart-25-04-18-11-25-41-161.png" alt="DD National">
-            <div class="channel-name">DD National</div></div>
-    
-    <div class="channel-btn entertainment" data-stream="https://d3eyhgoylams0m.cloudfront.net/v1/manifest/93ce20f0f52760bf38be911ff4c91ed02aa2fd92/ed7bd2c7-8d10-4051-b397-2f6b90f99acb/20c8ad14-a158-4a42-8889-e032d070856e/2.m3u8 "
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQp1OYfmugsbWOrMUv99qajPVbKpnWKLApWiDvYK1REHb7j96-zhZ2lpfc&s=10 " alt="DD Punjaabi">
-            <div class="channel-name">Punjaabi</div></div>
-    
-    <div class="channel-btn sports" data-stream="https://mini.allinonereborn.online/jiotv-ww/app/ts_live_204.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/DD_Sports.png" alt="DD_Sports">
-            <div class="channel-name">DD_Sports</div></div>
-    
-    <div class="channel-btn news" data-stream="https://ddlive.b-cdn.net/19/master.m3u8"
-             data-keyid=" "
-             data-key=" ">
-            <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/DD_News.png " alt="DD_News">
-            <div class="channel-name">DD_News</div></div>
-    
-    
-    
-    
- <div class="channel-btn music" data-stream="https://mcncdndigital.com/balleballetv/index.m3u8 ">
-            <img src="http://balleballe.tv/wp-content/uploads/2019/07/logo-e1568618159543.png ">
-            <div class="channel-name">balleballetv</div></div>   
-    
- <div class="channel-btn entertainment" data-stream="https://epiconvh.akamaized.net/live/nazara/master.m3u8 ">
-            <img src="https://i.ibb.co/pvCX0fw5/Picsart-25-04-18-11-50-11-661.jpg ">
-            <div class="channel-name">nazara</div></div>      
-    
-   <div class="channel-btn movies" data-stream="https://epiconvh.akamaized.net/live/filamchi/master_864.m3u8">
-            <img src="https://www.adgully.com/img/800/202105/filamachienglish-black.jpg ">
-            <div class="channel-name">filamchi</div></div>    
-    
-   <div class="channel-btn movies" data-stream="https://cdn-2.pishow.tv/live/1459/master.m3u8">
-    <img src="https://i.pinimg.com/736x/1c/9a/08/1c9a085c1fe6a240cfa29004c0a36b05.jpg" alt="Goldmines">
-    <div class="channel-name">Goldmines</div>
-</div>
-
-<div class="channel-btn movies" data-stream="https://cdn-2.pishow.tv/live/1460/master.m3u8">
-    <img src="https://i.pinimg.com/736x/a3/e6/61/a3e661d1dfac520cfed7e1dd44bb8581.jpg" alt="Goldmines Bollywood">
-    <div class="channel-name">Goldmines Bollywood</div>
-</div>
-
-<div class="channel-btn movies" data-stream="https://cdn-2.pishow.tv/live/1461/master.m3u8">
-    <img src="https://i.pinimg.com/736x/09/62/d9/0962d9a7c965d5ecb70f1a6f5c8f93dd.jpg" alt="Goldmines Movies">
-    <div class="channel-name">Goldmines Movies</div>
-</div>
-
-<div class="channel-btn entertainment" data-stream="https://anjantvevent.pc.cdn.bitgravity.com/anjantv/live/amlst:event_anjan_,b400,b800,b1024,b1200,b1500,b4000,.smil/chunklist_b4000000.m3u8">
-    <img src="https://i.pinimg.com/736x/76/bd/a0/76bda01f96b00c711bc9023f38aa1c0a.jpg" alt="anjan tv">
-    <div class="channel-name">Anjan TV</div>
-</div>
-
-<div class="channel-btn entertainment" data-stream="https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/arre/master.m3u8">
-    <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Arre.png" alt="Arre tv">
-    <div class="channel-name">Arre TV</div>
-</div>
-
-<div class="channel-btn movies" data-stream="https://livecdn.live247stream.com/joomusic/tv/playlist.m3u8">
-    <img src="https://www.joomusic.net/assets/images/logo.png" alt="Joo music">
-    <div class="channel-name">Joo Music</div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-<div class="channel-btn music" data-stream="https://cdn2.in/SteelbirdMusicTVhls/live.m3u8">
-    <img src="https://i.ibb.co/27vcPGBY/Picsart-25-04-18-11-30-28-867.png" alt="Steelbird Music">
-    <div class="channel-name">Steelbird Music</div>
-</div>
-
-
-
-<div class="channel-btn news" data-stream="https://dknttpxmr0dwf.cloudfront.net/index_3.m3u8">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-rB4AxUKsXi4KQdvGYMO_5fdLhOYwWuJpr6rvjefSeQwF-VRGNIUCtYg&s=10" alt="Steelbird Music">
-    <div class="channel-name">Zee News</div>
-</div>
-
-
-
-
-
-<div class="channel-btn news" data-stream="https://d2o3r1shda7xvv.cloudfront.net/index_5.m3u8">
-    <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Zee_Salaam.png" alt="Zee Salaam">
-    <div class="channel-name">Zee Salaam</div>
-</div>
-
-<div class="channel-btn news" data-stream="https://d31s6sxcz6vnac.cloudfront.net/index_3.m3u8">
-    <img src="https://i.pinimg.com/736x/b7/10/24/b7102420be9a0f9702d310bfc95e80bf.jpg" alt="zee punjab haryana">
-    <div class="channel-name">Zee Punjab Haryana</div>
-</div>
-
-<div class="channel-btn news" data-stream="https://abplivetv.pc.cdn.bitgravity.com/httppush/abp_livetv/abp_abpnews/master.m3u8">
-    <img src="https://i.pinimg.com/736x/62/be/31/62be317f79ba2aacaad9499ae57c4e22.jpg" alt="Abp news">
-    <div class="channel-name">ABP News</div>
-</div>
-
-<div class="channel-btn news" data-stream="https://aajtaklive-amd.akamaized.net/hls/live/2014416/aajtak/aajtaklive/live_720p/chunks.m3u8">
-    <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Aaj_Tak.png" alt="Aajtakk">
-    <div class="channel-name">Aaj Tak</div>
-</div>
-
-<div class="channel-btn news" data-stream="https://feeds.intoday.in/aajtak/api/at2/master.m3u8">
-    <img src="https://akm-img-a-in.tosshub.com/aajtak/resources/at2logo_97x552x.png" alt="aajtakk 2">
-    <div class="channel-name">Aaj Tak 2</div>
-</div>
-  
-
-
-
-
 
 
 
@@ -1843,48 +2209,38 @@
             <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Ten3_HD.png">
             <div class="channel-name">Ten3_HD</div></div>
             
-<div class="channel-btn sports" 
+
+
+
+
+   
+        <div class="channel-btn sports" 
              data-player="iframe"
              data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-ten-4-hd"
              data-name="Sony Ten 4HD">
             <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Ten_4_HD_Tamil.png">
-            <div class="channel-name">Ten_4_HD</div></div>
+            <div class="channel-name">Ten_4_HD</div>
+        </div>
      
-   <div class="channel-btn sports" 
+        <div class="channel-btn sports" 
              data-player="iframe"
              data-iframe="https://allinonereborn.fun/sony/play.html?id=sony-ten-5-hd "
              data-name="Sony Ten 5HD">
             <img src=" https://jiotv.catchup.cdn.jio.com/dare_images/images/Six_HD.png">
-            <div class="channel-name">Ten 5 HD</div></div>
-
-            
-            
-     
-            
-            
-            
-            
-            
-            
-        
-
-        
-   
-
-     
-        <!-- More channels... -->
-    </div>
+            <div class="channel-name">Ten 5 HD</div>
+        </div>
+    </div> 
     
     <!-- Copyright Footer -->
     <div id="copyright-footer">
-        &copy; 2025 IndianTV-Live. All Rights Reserved.By:Syed Muzammil Shah 
+        &copy; 2025 IndianTV-Live. All Rights Reserved. By: Syed Muzammil Shah 
     </div>
     
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         // Player Selection variables
         const iframePlayerBtn = document.getElementById('iframe-player-btn');
-        const jwPlayerBtn = document.getElementById('jw-player-btn');
+        const shakaPlayerBtn = document.getElementById('shaka-player-btn');
         const html5PlayerBtn = document.getElementById('html5-player-btn');
         
         // IFrame Player variables
@@ -1893,12 +2249,36 @@
         const iframePlayer = document.getElementById('iframe-player');
         const iframeErrorMessage = document.getElementById('iframe-error-message');
         const iframeRetryBtn = document.getElementById('iframe-retry-btn');
+        const iframeLoadingSpinner = document.getElementById('iframe-loading-spinner');
         
-        // JW Player variables
-        let jwPlayerInstance;
-        const jwPlayerContainer = document.getElementById('player-container');
-        const jwPlayerClose = document.getElementById('player-close');
-        const jwErrorMsg = document.getElementById('error-message');
+        // Shaka Player variables
+        let shakaPlayer;
+        const shakaPlayerContainer = document.getElementById('shaka-player-container');
+        const shakaPlayerClose = document.getElementById('shaka-player-close');
+        const shakaVideoPlayer = document.getElementById('shaka-video-player');
+        const shakaErrorMsg = document.getElementById('shaka-error-message');
+        const shakaLoadingSpinner = document.getElementById('shaka-player-loading');
+        const shakaRetryBtn = document.getElementById('shaka-player-retry-btn');
+        const shakaSourceButtons = document.getElementById('shaka-source-buttons');
+        
+        // Shaka Player Controls variables
+        const shakaControlsContainer = document.getElementById('shaka-controls-container');
+        const shakaPlayPauseBtn = document.getElementById('shaka-play-pause-btn');
+        const shakaPlayIcon = document.getElementById('shaka-play-icon');
+        const shakaMuteBtn = document.getElementById('shaka-mute-btn');
+        const shakaVolumeIcon = document.getElementById('shaka-volume-icon');
+        const shakaVolumeSlider = document.getElementById('shaka-volume-slider');
+        const shakaProgressBar = document.getElementById('shaka-progress-bar');
+        const shakaBufferedBar = document.getElementById('shaka-buffered-bar');
+        const shakaProgressContainer = document.getElementById('shaka-progress-container');
+        const shakaCurrentTimeDisplay = document.getElementById('shaka-current-time');
+        const shakaFullscreenBtn = document.getElementById('shaka-fullscreen-btn');
+        const shakaFitScreenBtn = document.getElementById('shaka-fit-screen-btn');
+        const shakaSettingsDropdown = document.getElementById('shaka-settings-dropdown');
+        const shakaSettingsBtn = document.getElementById('shaka-settings-btn');
+        const shakaSpeedOptions = document.querySelectorAll('#shaka-settings-dropdown .shaka-speed-option');
+        const shakaChannelLogo = document.getElementById('shaka-channel-logo');
+        const shakaChannelName = document.getElementById('shaka-channel-name');
         
         // HTML5 Video Player variables
         const html5PlayerContainer = document.getElementById('html5-player-container');
@@ -1917,27 +2297,31 @@
         const html5BufferedBar = document.getElementById('html5-buffered-bar');
         const html5ProgressContainer = document.getElementById('html5-progress-container');
         const html5CurrentTimeDisplay = document.getElementById('html5-current-time');
-        const html5DurationDisplay = document.getElementById('html5-duration');
         const html5FullscreenBtn = document.getElementById('html5-fullscreen-btn');
         const html5FitScreenBtn = document.getElementById('html5-fit-screen-btn');
         const html5SettingsDropdown = document.getElementById('html5-settings-dropdown');
         const html5SettingsBtn = document.getElementById('html5-settings-btn');
-        const html5SpeedOptions = document.querySelectorAll('#html5-settings-dropdown .quality-option');
+        const html5SpeedOptions = document.querySelectorAll('#html5-settings-dropdown .speed-option');
         const html5ChannelLogo = document.getElementById('html5-channel-logo');
         const html5ChannelName = document.getElementById('html5-channel-name');
         
         // Common variables
         const buttons = document.querySelectorAll('.channel-btn');
         const filterButtons = document.querySelectorAll('.filter-btn');
+        const playerContainers = document.querySelectorAll('.player-container');
+        
+        // Current channel info for fallback
+        let currentChannelData = null;
         
         // Function to close all players
         function closeAllPlayers() {
-            iframePlayerContainer.classList.remove('visible');
-            jwPlayerContainer.classList.remove('visible');
-            html5PlayerContainer.classList.remove('visible');
+            playerContainers.forEach(container => {
+                container.classList.remove('visible');
+            });
             
-            if (jwPlayerInstance) {
-                jwPlayerInstance.pause();
+            if (shakaPlayer) {
+                shakaPlayer.destroy();
+                shakaPlayer = null;
             }
             
             if (html5VideoPlayer) {
@@ -1946,6 +2330,12 @@
             
             // Clear iframe source
             iframePlayer.src = '';
+            
+            // Hide error messages and retry buttons
+            shakaErrorMsg.style.display = 'none';
+            shakaRetryBtn.style.display = 'none';
+            html5ErrorMessage.style.display = 'none';
+            iframeErrorMessage.style.display = 'none';
         }
         
         // Setup player selection buttons
@@ -1956,9 +2346,9 @@
                 updateActivePlayerButton(this);
             });
             
-            jwPlayerBtn.addEventListener('click', function() {
+            shakaPlayerBtn.addEventListener('click', function() {
                 closeAllPlayers();
-                jwPlayerContainer.classList.add('visible');
+                shakaPlayerContainer.classList.add('visible');
                 updateActivePlayerButton(this);
             });
             
@@ -1971,7 +2361,7 @@
             function updateActivePlayerButton(activeButton) {
                 // Remove active class from all buttons
                 iframePlayerBtn.classList.remove('active');
-                jwPlayerBtn.classList.remove('active');
+                shakaPlayerBtn.classList.remove('active');
                 html5PlayerBtn.classList.remove('active');
                 
                 // Add active class to clicked button
@@ -1987,57 +2377,274 @@
             });
             
             iframeRetryBtn.addEventListener('click', function() {
-                iframePlayer.src = iframePlayer.src;
+                if (currentChannelData && currentChannelData.playerType === 'iframe') {
+                    changeIFrameChannel(currentChannelData.iframeSrc);
+                }
             });
         }
         
-        // Initialize JW Player
-        function initJWPlayer() {
-            try {
-                jwPlayerInstance = jwplayer("player").setup({
-                    playlist: [{
-                        file: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeetv/default/manifest.mpd",
-                        image: "https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/yHNSuG1V.png",
-                        drm: {
-                            clearkey: {
-                                keyId: "ed068cf84f0640ccbc7c0e395c0a272e",
-                                key: "bb722190f2bb446391020411a7d0828b"
-                            }
-                        }
-                    }],
-                    width: '100%',
-                    height: '100%',
-                    autostart: false,
-                    mute: false,
-                    primary: "html5",
-                    hlshtml: true,
-                    stretching: "uniform"
-                });
-
-                jwPlayerInstance.on('ready', function() {
-                    jwPlayerInstance.setMute(false);
-                });
-
-                jwPlayerInstance.on('error', function(e) {
-                    showJWError('Player error: ' + e.message);
-                });
-
-                jwPlayerInstance.on('setupError', function(e) {
-                    showJWError('Setup error: ' + e.message);
-                });
-
-            } catch (error) {
-                showJWError('Failed to initialize player: ' + error.message);
+        // Initialize Shaka Player
+        function initShakaPlayer() {
+            // Install built-in polyfills to patch browser incompatibilities.
+            shaka.polyfill.installAll();
+            
+            // Check if the browser supports the basic APIs Shaka needs.
+            if (!shaka.Player.isBrowserSupported()) {
+                showShakaError('Browser not supported!');
+                return;
             }
+            
+            // Create a Player instance.
+            shakaPlayer = new shaka.Player(shakaVideoPlayer);
+            
+            // Set up error event listeners
+            shakaPlayer.addEventListener('error', onShakaErrorEvent);
+            
+            // Show loading spinner when buffering
+            shakaVideoPlayer.addEventListener('waiting', function() {
+                shakaLoadingSpinner.style.display = 'block';
+            });
+            
+            shakaVideoPlayer.addEventListener('playing', function() {
+                shakaLoadingSpinner.style.display = 'none';
+                shakaErrorMsg.style.display = 'none';
+                shakaRetryBtn.style.display = 'none';
+            });
+            
+            // Setup Shaka Player controls
+            setupShakaPlayerControls();
         }
         
-        function showJWError(message) {
+        function onShakaErrorEvent(event) {
+            onShakaError(event.detail);
+        }
+        
+        function onShakaError(error) {
+            console.error('Error code', error.code, 'object', error);
+            shakaErrorMsg.textContent = 'Error: ' + error.code;
+            shakaErrorMsg.style.display = 'block';
+            shakaLoadingSpinner.style.display = 'none';
+            shakaRetryBtn.style.display = 'block';
+        }
+        
+        function showShakaError(message) {
             console.error(message);
-            jwErrorMsg.textContent = message;
-            jwErrorMsg.style.display = 'block';
-            setTimeout(() => {
-                jwErrorMsg.style.display = 'none';
-            }, 5000);
+            shakaErrorMsg.textContent = message;
+            shakaErrorMsg.style.display = 'block';
+            shakaLoadingSpinner.style.display = 'none';
+            shakaRetryBtn.style.display = 'block';
+        }
+        
+        // Setup Shaka Player retry button
+        function setupShakaPlayerButtons() {
+            shakaRetryBtn.addEventListener('click', function() {
+                if (currentChannelData && currentChannelData.playerType === 'shaka') {
+                    changeShakaChannel(
+                        currentChannelData.manifestUri, 
+                        currentChannelData.keyId, 
+                        currentChannelData.key
+                    );
+                }
+            });
+        }
+        
+        // Setup Shaka Player Controls
+        function setupShakaPlayerControls() {
+            // Play/Pause functionality
+            shakaPlayPauseBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleShakaPlayPause();
+            });
+            
+            shakaVideoPlayer.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleShakaPlayPause();
+            });
+            
+            function toggleShakaPlayPause() {
+                if (shakaVideoPlayer.paused) {
+                    shakaVideoPlayer.play().then(() => {
+                        shakaPlayIcon.textContent = '❚❚';
+                    }).catch(e => {
+                        console.log('Play failed:', e);
+                    });
+                } else {
+                    shakaVideoPlayer.pause();
+                    shakaPlayIcon.textContent = '▶';
+                }
+                showShakaControlsTemporarily();
+            }
+            
+            // Mute functionality
+            shakaMuteBtn.addEventListener('click', toggleShakaMute);
+            
+            function toggleShakaMute() {
+                shakaVideoPlayer.muted = !shakaVideoPlayer.muted;
+                updateShakaVolumeIcon();
+                showShakaControlsTemporarily();
+            }
+            
+            // Volume slider
+            shakaVolumeSlider.addEventListener('input', function() {
+                shakaVideoPlayer.volume = this.value;
+                shakaVideoPlayer.muted = this.value === 0;
+                updateShakaVolumeIcon();
+                showShakaControlsTemporarily();
+            });
+            
+            function updateShakaVolumeIcon() {
+                if (shakaVideoPlayer.muted || shakaVideoPlayer.volume === 0) {
+                    shakaVolumeIcon.textContent = '🔇';
+                    shakaVolumeSlider.value = 0;
+                } else if (shakaVideoPlayer.volume > 0.5) {
+                    shakaVolumeIcon.textContent = '🔊';
+                } else {
+                    shakaVolumeIcon.textContent = '🔉';
+                }
+            }
+            
+            // Progress bar
+            shakaVideoPlayer.addEventListener('timeupdate', updateShakaProgress);
+            shakaProgressContainer.addEventListener('click', seekShaka);
+            
+            function updateShakaProgress() {
+                const percent = (shakaVideoPlayer.currentTime / shakaVideoPlayer.duration) * 100;
+                shakaProgressBar.style.width = `${percent}%`;
+                
+                // Update buffered bar
+                if (shakaVideoPlayer.buffered.length > 0) {
+                    const bufferedEnd = shakaVideoPlayer.buffered.end(shakaVideoPlayer.buffered.length - 1);
+                    const bufferedPercent = (bufferedEnd / shakaVideoPlayer.duration) * 100;
+                    shakaBufferedBar.style.width = `${bufferedPercent}%`;
+                }
+                
+                // Update time display
+                shakaCurrentTimeDisplay.textContent = formatTime(shakaVideoPlayer.currentTime);
+                
+                // Show loading spinner if buffering
+                if (shakaVideoPlayer.readyState < 3) {
+                    shakaLoadingSpinner.style.display = 'block';
+                } else {
+                    shakaLoadingSpinner.style.display = 'none';
+                }
+            }
+            
+            function seekShaka(e) {
+                const percent = e.offsetX / shakaProgressContainer.offsetWidth;
+                shakaVideoPlayer.currentTime = percent * shakaVideoPlayer.duration;
+                showShakaControlsTemporarily();
+            }
+            
+            // Time formatting
+            function formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                seconds = Math.floor(seconds % 60);
+                return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            // Fullscreen functionality
+            shakaFullscreenBtn.addEventListener('click', toggleShakaFullscreen);
+            
+            function toggleShakaFullscreen() {
+                if (!document.fullscreenElement) {
+                    shakaPlayerContainer.requestFullscreen().catch(err => {
+                        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                    });
+                    shakaPlayerContainer.classList.add('fullscreen');
+                } else {
+                    document.exitFullscreen();
+                    shakaPlayerContainer.classList.remove('fullscreen');
+                }
+                showShakaControlsTemporarily();
+            }
+            
+            // Handle fullscreen change events
+            document.addEventListener('fullscreenchange', function() {
+                if (!document.fullscreenElement) {
+                    shakaPlayerContainer.classList.remove('fullscreen');
+                }
+            });
+            
+            // Fit screen functionality
+            let shakaFitMode = 'contain';
+            shakaFitScreenBtn.addEventListener('click', toggleShakaFitScreen);
+            
+            function toggleShakaFitScreen() {
+                const fitModes = ['contain', 'cover', 'fill'];
+                const currentIndex = fitModes.indexOf(shakaFitMode);
+                shakaFitMode = fitModes[(currentIndex + 1) % fitModes.length];
+                
+                shakaVideoPlayer.style.objectFit = shakaFitMode;
+                
+                // Update button icon based on current mode
+                switch(shakaFitMode) {
+                    case 'contain':
+                        shakaFitScreenBtn.textContent = '⎚';
+                        break;
+                    case 'cover':
+                        shakaFitScreenBtn.textContent = '⧉';
+                        break;
+                    case 'fill':
+                        shakaFitScreenBtn.textContent = '⧠';
+                        break;
+                }
+                
+                showShakaControlsTemporarily();
+            }
+            
+            // Playback speed settings
+            shakaSettingsBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                shakaSettingsDropdown.style.display = shakaSettingsDropdown.style.display === 'flex' ? 'none' : 'flex';
+                showShakaControlsTemporarily();
+            });
+            
+            shakaSpeedOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const speed = parseFloat(this.getAttribute('data-speed'));
+                    shakaVideoPlayer.playbackRate = speed;
+                    
+                    // Update active state
+                    shakaSpeedOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    shakaSettingsDropdown.style.display = 'none';
+                    showShakaControlsTemporarily();
+                });
+            });
+            
+            // Close settings when clicking elsewhere
+            document.addEventListener('click', function() {
+                shakaSettingsDropdown.style.display = 'none';
+            });
+            
+            // Controls visibility
+            let shakaControlsTimeout;
+            let shakaControlsVisible = true;
+            
+            shakaPlayerContainer.addEventListener('mousemove', function() {
+                if (!shakaControlsVisible) {
+                    shakaControlsContainer.style.opacity = '1';
+                    shakaControlsVisible = true;
+                }
+                showShakaControlsTemporarily();
+            });
+            
+            function showShakaControlsTemporarily() {
+                clearTimeout(shakaControlsTimeout);
+                shakaControlsContainer.style.opacity = '1';
+                shakaControlsVisible = true;
+                
+                shakaControlsTimeout = setTimeout(() => {
+                    if (!shakaVideoPlayer.paused) {
+                        shakaControlsContainer.style.opacity = '0';
+                        shakaControlsVisible = false;
+                    }
+                }, 3000);
+            }
+            
+            // Initialize volume icon
+            updateShakaVolumeIcon();
         }
         
         // Setup HTML5 Video Player
@@ -2134,11 +2741,6 @@
                 return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             }
             
-            // Duration display
-            html5VideoPlayer.addEventListener('loadedmetadata', function() {
-                html5DurationDisplay.textContent = formatTime(html5VideoPlayer.duration);
-            });
-            
             // Fullscreen functionality
             html5FullscreenBtn.addEventListener('click', toggleHTML5Fullscreen);
             
@@ -2205,9 +2807,9 @@
             });
             
             html5RetryBtn.addEventListener('click', function() {
-                html5ErrorMessage.style.display = 'none';
-                html5VideoPlayer.load();
-                html5VideoPlayer.play().catch(e => console.log(e));
+                if (currentChannelData && currentChannelData.playerType === 'html5') {
+                    changeHTML5Channel(currentChannelData.html5Src, currentChannelData.logo, currentChannelData.name);
+                }
             });
             
             // Controls visibility
@@ -2270,18 +2872,28 @@
             buttons.forEach(button => {
                 button.addEventListener('click', function() {
                     const playerType = this.getAttribute('data-player');
-                    const streamUrl = this.getAttribute('data-stream');
-                    const imageUrl = this.querySelector('img').src;
-                    const channelName = this.querySelector('.channel-name').textContent;
+                    const manifestUri = this.getAttribute('data-manifest');
                     const keyId = this.getAttribute('data-keyid');
                     const key = this.getAttribute('data-key');
-                    const headers = this.getAttribute('data-headers');
+                    const imageUrl = this.querySelector('img').src;
+                    const channelName = this.querySelector('.channel-name').textContent;
                     const html5Src = this.getAttribute('data-src');
-                    const html5Logo = this.getAttribute('data-logo');
-                    const html5Name = this.getAttribute('data-name');
+                    const html5Logo = this.getAttribute('data-logo') || imageUrl;
+                    const html5Name = this.getAttribute('data-name') || channelName;
                     const iframeSrc = this.getAttribute('data-iframe');
-                    const iframeLogo = this.getAttribute('data-logo');
-                    const iframeName = this.getAttribute('data-name');
+
+                    // Store current channel data for potential fallback
+                    currentChannelData = {
+                        playerType,
+                        manifestUri,
+                        keyId,
+                        key,
+                        imageUrl,
+                        channelName,
+                        html5Src,
+                        logo: html5Logo,
+                        iframeSrc
+                    };
 
                     // Remove active class from all buttons and add to clicked one
                     buttons.forEach(btn => btn.classList.remove('active'));
@@ -2304,49 +2916,54 @@
                         iframePlayerBtn.classList.add('active');
                         
                         // Change IFrame source
-                        changeIFrameChannel(iframeSrc, iframeLogo, iframeName);
-                    } else {
-                        // Show JW Player
-                        jwPlayerContainer.classList.add('visible');
-                        jwPlayerBtn.classList.add('active');
+                        changeIFrameChannel(iframeSrc);
+                    } else if (playerType === 'shaka') {
+                        // Show Shaka Player
+                        shakaPlayerContainer.classList.add('visible');
+                        shakaPlayerBtn.classList.add('active');
                         
-                        // Change JW Player source
-                        changeJWChannel(streamUrl, imageUrl, channelName, keyId, key, headers);
+                        // Show loading spinner
+                        shakaLoadingSpinner.style.display = 'block';
+                        
+                        // Update channel info
+                        shakaChannelLogo.src = html5Logo;
+                        shakaChannelLogo.alt = html5Name;
+                        shakaChannelName.textContent = html5Name;
+                        
+                        // Change Shaka Player source
+                        changeShakaChannel(manifestUri, keyId, key);
                     }
                 });
             });
         }
         
-        function changeJWChannel(streamUrl, imageUrl, channelName, keyId, key, headers) {
+        function changeShakaChannel(manifestUri, keyId, key) {
             try {
-                const playlistItem = {
-                    file: streamUrl,
-                    image: imageUrl
-                };
-
-                if (keyId && key) {
-                    playlistItem.drm = {
-                        clearkey: {
-                            keyId: keyId,
-                            key: key
+                if (!shakaPlayer) {
+                    initShakaPlayer();
+                }
+                
+                // Configure DRM
+                shakaPlayer.configure({
+                    drm: {
+                        clearKeys: {
+                            [keyId]: key
                         }
-                    };
-                }
-
-                if (headers) {
-                    try {
-                        playlistItem.headers = JSON.parse(headers);
-                    } catch (e) {
-                        console.warn('Failed to parse headers', e);
                     }
-                }
-
-                jwPlayerInstance.load([playlistItem]);
-                jwPlayerInstance.setMute(false);
-                jwPlayerInstance.play();
-
+                });
+                
+                // Load the manifest
+                shakaPlayer.load(manifestUri).then(function() {
+                    console.log('The video has now been loaded!');
+                    shakaLoadingSpinner.style.display = 'none';
+                    
+                    // Try to play
+                    shakaVideoPlayer.play().catch(error => {
+                        console.log('Autoplay blocked:', error);
+                    });
+                }).catch(onShakaError);
             } catch (error) {
-                showJWError('Error loading channel: ' + error.message);
+                showShakaError('Error loading channel: ' + error.message);
             }
         }
         
@@ -2374,9 +2991,15 @@
             });
         }
         
-        function changeIFrameChannel(src, logo, name) {
+        function changeIFrameChannel(src) {
+            iframeLoadingSpinner.style.display = 'block';
             iframeErrorMessage.style.display = 'none';
-            iframePlayer.src = src;
+            
+            // Set iframe source after a small delay to show loading spinner
+            setTimeout(() => {
+                iframePlayer.src = src;
+                iframeLoadingSpinner.style.display = 'none';
+            }, 500);
         }
         
         // Setup filter buttons
@@ -2402,10 +3025,11 @@
         }
         
         // Close buttons functionality
-        jwPlayerClose.addEventListener('click', function() {
-            jwPlayerContainer.classList.remove('visible');
-            if (jwPlayerInstance) {
-                jwPlayerInstance.pause();
+        shakaPlayerClose.addEventListener('click', function() {
+            shakaPlayerContainer.classList.remove('visible');
+            if (shakaPlayer) {
+                shakaPlayer.destroy();
+                shakaPlayer = null;
             }
         });
         
@@ -2414,22 +3038,22 @@
             html5VideoPlayer.pause();
         });
         
+        iframePlayerClose.addEventListener('click', function() {
+            iframePlayerContainer.classList.remove('visible');
+            iframePlayer.src = '';
+        });
+        
         // Initialize everything
         setupPlayerSelection();
         setupIFramePlayer();
-        initJWPlayer();
+        setupShakaPlayerButtons();
         setupHTML5Player();
         setupChannelButtons();
         setupFilterButtons();
 
         // Handle window resize
         window.addEventListener('resize', function() {
-            if (jwPlayerInstance) {
-                jwPlayerInstance.resize(
-                    document.getElementById('player-container').offsetWidth, 
-                    document.getElementById('player-container').offsetHeight
-                );
-            }
+            // Handle any resize logic if needed
         });
     });
     </script>
