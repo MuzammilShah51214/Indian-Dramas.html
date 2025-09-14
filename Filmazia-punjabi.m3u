@@ -1,0 +1,4 @@
+#EXTM3U
+#EXTINF:-1 tvg-id="206315" tvg-name="Channel 206315",Channel 206315
+#EXTVLCOPT:http-user-agent=RANAPK
+http://94.136.184.160/OPPLEX/play.php?id=206315
